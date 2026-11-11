@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2100" height="2700" viewBox="0 0 2100 2700">
+  <!-- Cover: printed pages on a layout grid (technical publishing), no text: fills page 1 below the colour band -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4F8F9"/>
+      <stop offset="1" stop-color="#DCE8EB"/>
+    </linearGradient>
+  </defs>
+  <rect width="2100" height="2700" fill="url(#bg)"/>
+  <path d="M100 0V2700M200 0V2700M300 0V2700M400 0V2700M500 0V2700M600 0V2700M700 0V2700M800 0V2700M900 0V2700M1000 0V2700M1100 0V2700M1200 0V2700M1300 0V2700M1400 0V2700M1500 0V2700M1600 0V2700M1700 0V2700M1800 0V2700M1900 0V2700M2000 0V2700M0 100H2100M0 200H2100M0 300H2100M0 400H2100M0 500H2100M0 600H2100M0 700H2100M0 800H2100M0 900H2100M0 1000H2100M0 1100H2100M0 1200H2100M0 1300H2100M0 1400H2100M0 1500H2100M0 1600H2100M0 1700H2100M0 1800H2100M0 1900H2100M0 2000H2100M0 2100H2100M0 2200H2100M0 2300H2100M0 2400H2100M0 2500H2100M0 2600H2100" fill="none" stroke="#C9D8DC" stroke-width="2"/>
+  <!-- column guides -->
+  <g stroke="#03A4C0" stroke-width="3" stroke-dasharray="18 14" opacity="0.35">
+    <line x1="300" y1="0" x2="300" y2="2700"/>
+    <line x1="1800" y1="0" x2="1800" y2="2700"/>
+    <line x1="0" y1="2350" x2="2100" y2="2350"/>
+  </g>
+
+  <!-- back page, turned left -->
+  <g transform="rotate(-9 1050 1500)">
+    <rect x="530" y="760" width="980" height="1380" fill="#1F3A44" opacity="0.10" transform="translate(22 26)"/>
+    <rect x="530" y="760" width="980" height="1380" fill="#FFFFFF" stroke="#B9C9CE" stroke-width="3"/>
+    <g fill="#D3DEE1">
+      <rect x="610" y="860" width="600" height="34"/>
+      <rect x="610" y="940" width="820" height="18"/><rect x="610" y="985" width="820" height="18"/>
+      <rect x="610" y="1030" width="760" height="18"/><rect x="610" y="1075" width="820" height="18"/>
+      <rect x="610" y="1120" width="540" height="18"/>
+    </g>
+  </g>
+
+  <!-- middle page, turned right: a table and a chart -->
+  <g transform="rotate(6 1050 1500)">
+    <rect x="560" y="780" width="980" height="1380" fill="#1F3A44" opacity="0.12" transform="translate(22 26)"/>
+    <rect x="560" y="780" width="980" height="1380" fill="#FFFFFF" stroke="#B9C9CE" stroke-width="3"/>
+    <rect x="640" y="870" width="820" height="60" fill="#03A4C0" opacity="0.85"/>
+    <g fill="none" stroke="#B9C9CE" stroke-width="3">
+      <rect x="640" y="930" width="820" height="300"/>
+      <line x1="640" y1="1005" x2="1460" y2="1005"/><line x1="640" y1="1080" x2="1460" y2="1080"/>
+      <line x1="640" y1="1155" x2="1460" y2="1155"/>
+      <line x1="913" y1="870" x2="913" y2="1230"/><line x1="1187" y1="870" x2="1187" y2="1230"/>
+    </g>
+    <g fill="#03A4C0">
+      <rect x="700" y="1700" width="90" height="250" opacity="0.45"/>
+      <rect x="840" y="1580" width="90" height="370" opacity="0.6"/>
+      <rect x="980" y="1640" width="90" height="310" opacity="0.75"/>
+      <rect x="1120" y="1460" width="90" height="490"/>
+      <rect x="1260" y="1520" width="90" height="430" opacity="0.85"/>
+    </g>
+    <line x1="660" y1="1950" x2="1420" y2="1950" stroke="#1F3A44" stroke-width="5"/>
+  </g>
+
+  <!-- front page: heading, text, picture, formula line -->
+  <rect x="582" y="842" width="980" height="1380" fill="#1F3A44" opacity="0.16"/>
+  <rect x="560" y="816" width="980" height="1380" fill="#FFFFFF" stroke="#9FB3B9" stroke-width="3"/>
+  <rect x="560" y="816" width="980" height="120" fill="#03A4C0"/>
+  <rect x="640" y="858" width="360" height="36" fill="#FFFFFF" opacity="0.9"/>
+  <g fill="#C3D1D5">
+    <rect x="640" y="1000" width="820" height="20"/><rect x="640" y="1048" width="820" height="20"/>
+    <rect x="640" y="1096" width="780" height="20"/><rect x="640" y="1144" width="820" height="20"/>
+    <rect x="640" y="1192" width="460" height="20"/>
+  </g>
+  <!-- picture with a gear -->
+  <rect x="640" y="1260" width="820" height="460" fill="#E8F4F7" stroke="#B9C9CE" stroke-width="3"/>
+  <g transform="translate(1050 1490)">
+    <g fill="#1F3A44">
+      <circle r="150"/>
+      <g>
+        <rect x="-32" y="-205" width="64" height="80" rx="8"/>
+        <rect x="-32" y="125" width="64" height="80" rx="8"/>
+        <rect x="-205" y="-32" width="80" height="64" rx="8"/>
+        <rect x="125" y="-32" width="80" height="64" rx="8"/>
+      </g>
+      <g transform="rotate(45)">
+        <rect x="-32" y="-205" width="64" height="80" rx="8"/>
+        <rect x="-32" y="125" width="64" height="80" rx="8"/>
+        <rect x="-205" y="-32" width="80" height="64" rx="8"/>
+        <rect x="125" y="-32" width="80" height="64" rx="8"/>
+      </g>
+    </g>
+    <circle r="62" fill="#E8F4F7"/>
+    <circle r="150" fill="none" stroke="#03A4C0" stroke-width="10" stroke-dasharray="30 22" transform="scale(1.55)"/>
+  </g>
+  <g fill="#C3D1D5">
+    <rect x="640" y="1780" width="820" height="20"/><rect x="640" y="1828" width="700" height="20"/>
+  </g>
+  <!-- a display formula: fraction bar and blocks -->
+  <g fill="#1F3A44">
+    <rect x="860" y="1915" width="70" height="44" rx="6"/>
+    <rect x="955" y="1930" width="40" height="12"/><rect x="955" y="1950" width="40" height="12"/>
+    <rect x="1030" y="1888" width="120" height="40" rx="6"/>
+    <rect x="1020" y="1936" width="140" height="8"/>
+    <rect x="1050" y="1952" width="80" height="40" rx="6"/>
+  </g>
+  <g fill="#C3D1D5">
+    <rect x="640" y="2060" width="820" height="20"/><rect x="640" y="2108" width="560" height="20"/>
+  </g>
+  <!-- crop marks of the front page -->
+  <g stroke="#1F3A44" stroke-width="4">
+    <path d="M500 816H540M560 756V796" fill="none"/>
+    <path d="M1600 816H1560M1540 756V796" fill="none"/>
+    <path d="M500 2196H540M560 2256V2216" fill="none"/>
+    <path d="M1600 2196H1560M1540 2256V2216" fill="none"/>
+  </g>
+
+  <!-- ruler at the bottom -->
+  <rect x="0" y="2480" width="2100" height="220" fill="#1F3A44"/>
+  <g stroke="#FFFFFF" stroke-width="4" opacity="0.8">
+    <path d="M50 2480v70M150 2480v40M250 2480v40M350 2480v40M450 2480v40M550 2480v70M650 2480v40M750 2480v40M850 2480v40M950 2480v40M1050 2480v70M1150 2480v40M1250 2480v40M1350 2480v40M1450 2480v40M1550 2480v70M1650 2480v40M1750 2480v40M1850 2480v40M1950 2480v40M2050 2480v70"/>
+  </g>
+  <rect x="0" y="2650" width="2100" height="50" fill="#03A4C0"/>
+</svg>

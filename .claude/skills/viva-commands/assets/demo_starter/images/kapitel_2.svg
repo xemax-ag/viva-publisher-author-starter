@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2100" height="2700" viewBox="0 0 2100 2700">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4F8F9"/>
+      <stop offset="1" stop-color="#DCE8EB"/>
+    </linearGradient>
+  </defs>
+  <rect width="2100" height="2700" fill="url(#bg)"/>
+  <path d="M100 0V2700M200 0V2700M300 0V2700M400 0V2700M500 0V2700M600 0V2700M700 0V2700M800 0V2700M900 0V2700M1000 0V2700M1100 0V2700M1200 0V2700M1300 0V2700M1400 0V2700M1500 0V2700M1600 0V2700M1700 0V2700M1800 0V2700M1900 0V2700M2000 0V2700M0 100H2100M0 200H2100M0 300H2100M0 400H2100M0 500H2100M0 600H2100M0 700H2100M0 800H2100M0 900H2100M0 1000H2100M0 1100H2100M0 1200H2100M0 1300H2100M0 1400H2100M0 1500H2100M0 1600H2100M0 1700H2100M0 1800H2100M0 1900H2100M0 2000H2100M0 2100H2100M0 2200H2100M0 2300H2100M0 2400H2100M0 2500H2100M0 2600H2100" fill="none" stroke="#C9D8DC" stroke-width="2"/>
+  <g stroke="#03A4C0" stroke-width="3" stroke-dasharray="18 14" opacity="0.35">
+    <line x1="300" y1="0" x2="300" y2="2700"/><line x1="1800" y1="0" x2="1800" y2="2700"/>
+  </g>
+  <rect x="422" y="976" width="1300" height="1000" fill="#1F3A44" opacity="0.14"/><rect x="400" y="950" width="1300" height="1000" fill="#FFFFFF" stroke="#9FB3B9" stroke-width="3"/>
+  <rect x="460" y="1010" width="1180" height="880" fill="#E8F4F7"/>
+  <circle cx="1400" cy="1230" r="110" fill="#03A4C0" opacity="0.8"/>
+  <path d="M460 1890L820 1380L1040 1650L1220 1460L1640 1890Z" fill="#1F3A44" opacity="0.85"/>
+  <path d="M460 1890L700 1600L900 1890Z" fill="#1F3A44"/>
+  <path d="M820 1380L900 1490L860 1480L820 1530L780 1480L750 1480Z" fill="#FFFFFF" opacity="0.85"/>
+  <rect x="560" y="1100" width="980" height="700" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-dasharray="26 18"/>
+  <g fill="none" stroke="#03A4C0" stroke-width="22" stroke-linecap="square">
+    <path d="M540 1180V1080H640"/><path d="M1460 1080H1560V1180"/>
+    <path d="M540 1720V1820H640"/><path d="M1460 1820H1560V1720"/>
+  </g>
+
+  <rect x="0" y="2560" width="2100" height="140" fill="#1F3A44"/>
+  <rect x="0" y="2660" width="2100" height="40" fill="#03A4C0"/>
+</svg>

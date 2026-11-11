@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <rect width="1600" height="1000" fill="#FFFFFF"/>
+  <circle cx="800" cy="500" r="420" fill="#E8F4F7" stroke="#1F3A44" stroke-width="10"/>
+  <circle cx="800" cy="500" r="300" fill="none" stroke="#03A4C0" stroke-width="5" stroke-dasharray="60 14 8 14"/>
+  <circle cx="800" cy="500" r="150" fill="#FFFFFF" stroke="#1F3A44" stroke-width="10"/>
+  <circle cx="1012.1" cy="712.1" r="48" fill="#FFFFFF" stroke="#1F3A44" stroke-width="8"/><circle cx="587.9" cy="712.1" r="48" fill="#FFFFFF" stroke="#1F3A44" stroke-width="8"/><circle cx="587.9" cy="287.9" r="48" fill="#FFFFFF" stroke="#1F3A44" stroke-width="8"/><circle cx="1012.1" cy="287.9" r="48" fill="#FFFFFF" stroke="#1F3A44" stroke-width="8"/>
+  <g stroke="#03A4C0" stroke-width="5" stroke-dasharray="60 14 8 14">
+    <line x1="330" y1="500" x2="1270" y2="500"/><line x1="800" y1="40" x2="800" y2="960"/>
+  </g>
+  <g stroke="#1F3A44" stroke-width="5" fill="#1F3A44">
+    <line x1="1380" y1="80" x2="1380" y2="920"/>
+    <line x1="1230" y1="80" x2="1420" y2="80"/><line x1="1230" y1="920" x2="1420" y2="920"/>
+    <path d="M1360 130L1380 82L1400 130Z"/><path d="M1360 870L1380 918L1400 870Z"/>
+    <line x1="120" y1="350" x2="120" y2="650"/>
+    <line x1="120" y1="350" x2="650" y2="350"/><line x1="120" y1="650" x2="650" y2="650"/>
+    <path d="M100 400L120 352L140 400Z"/><path d="M100 600L120 648L140 600Z"/>
+  </g>
+</svg>
