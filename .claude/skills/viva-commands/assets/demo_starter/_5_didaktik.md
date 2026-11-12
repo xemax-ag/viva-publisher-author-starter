@@ -98,6 +98,20 @@ Sicherheit steht an oberster Stelle.
 ```
 {% endraw %}
 
+Ein Etikett «Hinweis» kann auch über einem gewöhnlichen Absatz stehen, ohne Kasten: dann ohne `note()` und ohne `offset_y`, das nur in einen Kasten hineinragt.
+
+{{ label('Hinweis', icon='bell', offset_x='4mm') }}
+
+Wertelisten enthalten zusätzlich einen Platzhalter für «nicht zugeordnet».
+
+{% raw %}
+```markdown
+{{ label('Hinweis', icon='bell', offset_x='4mm') }}
+
+Wertelisten enthalten zusätzlich einen Platzhalter für «nicht zugeordnet».
+```
+{% endraw %}
+
 ## Rahmen
 
 `frame()` setzt den folgenden Absatz oder die folgende Liste in einen Kasten mit farbiger Linie, etwa eine Definition. Farbe, Hintergrund und Linienstärke sind wählbar.

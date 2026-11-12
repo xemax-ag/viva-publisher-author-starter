@@ -46,6 +46,16 @@ Ein Zeilenumbruch mit `<br>`:<br>Diese Zeile beginnt neu.
 ```
 {% endraw %}
 
+## Symbole
+
+Ein Symbol ist ein Zeichen wie jedes andere: Kopieren oder tippen Sie es in den Text, z. B. □ zum Ankreuzen, → für einen Ablauf, ± × ≈ für Werte und Toleranzen. Fett, kursiv und Farbe wirken auch darauf: {{ color('✓ erledigt', '#00B050') }}. Welche Symbole die Schrift der Vorlage hat, zeigt COMMANDS.md im Abschnitt «Symbols»; die übrigen nimmt das PDF aus einer anderen Schrift.
+
+{% raw %}
+```markdown
+□ zum Ankreuzen, → für einen Ablauf, ± × ≈ für Werte   {{ color('✓ erledigt', '#00B050') }}
+```
+{% endraw %}
+
 ## Listen
 
 Aufzählungen beginnen mit `-`, nummerierte Listen mit `1.`; eingerückte Einträge bilden eine zweite Ebene:

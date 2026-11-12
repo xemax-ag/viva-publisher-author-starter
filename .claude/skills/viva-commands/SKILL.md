@@ -86,6 +86,9 @@ may edit.
    `<env>` is a project whose environment has the converter: the user's project if `uv run python -c "import
    viva_publisher_converter"` works there, otherwise a converter checkout (e.g. `~/viva-publisher-converter`).
    It prints the problems with their file and line, or exits with 0. If no converter is available, say so.
+   A Jinja syntax error (e.g. `expected token ',', got 'Entwurf'`: a `'` inside a `'…'` string) makes the render
+   step drop that whole file, and with it its anchors: every `ref()` to them, also in other files, then reports
+   «no anchor». Fix the syntax error first; those messages go away with it.
 5. **Report.** Say what you changed and what is still open: placeholders, refs to targets that don't exist yet,
    pictures that look wrong, anything you couldn't decide, and whether the real render step ran.
 
@@ -103,6 +106,7 @@ escapes (`3\. Schritt`, `\# kein Titel`, `2\*3`). For everything else:
 | «siehe Abbildung 3 / Tabelle 2 / Abschnitt 1.2» | `{{ ref('abb_aufbau') }}` (`'title'`, `'page'` for title or page) + an anchor on the target. Never hard-code numbers. |
 | table + «Tabelle 2: Werte» | `Tabelle: Werte` directly above the table (no blank line), `{{ table(…widths…) }}` or `{% call table(…) %}` around it |
 | merged cells, multi-line cells, `\|` in a cell | an HTML `<table>` (pipe tables cannot do these) |
+| a solution in a table cell (red), an aligned or turned cell | on a `<td>`/`<th>` of an HTML table: `solution` without a value (`<td solution>X</td>`: the cell's text in the style Solutions, red by the template), `align="center"`/`"right"`, `valign="middle"`/`"bottom"`, `vertical="up"`/`"down"` |
 | pictures side by side / text beside a picture | `{% call table(…, type='pictures') %}` / `type='layout'` |
 | formula (`$…$`, Word equation) | `{{ formula('U = R \cdot I') }}`: inline in the sentence, or on its own line for a display formula. `$…$` stays text. |
 | footnote `[^1]` | `{{ footnote('Text') }}` right after the word, no space before it |
@@ -110,6 +114,7 @@ escapes (`3\. Schritt`, `\# kein Titel`, `2\*3`). For everything else:
 | keyword for the index | `{{ index('Motor') }}Motor` directly before its word, inline only |
 | learning objectives | `{{ label('Lernziele', icon='learning_objective') }}`, blank line, `{% call learning_objectives() %}` with rows `\| LZ_0101 \| Sie erklären … \|` |
 | «Hinweis» box | `{{ label('Hinweis', icon='bell', offset_x='4mm', offset_y='50%') }}`, blank line, `{{ note() }}` directly above the paragraph/list, or `{% call note() %}` … `{% endcall %}` for several blocks |
+| «Hinweis» label above a normal paragraph (no box) | `{{ label('Hinweis', icon='bell', offset_x='4mm') }}`, blank line, the paragraph. No `offset_y`: it reaches into a `note()` box and is a problem without one. |
 | example / summary / link to a quiz | `label('Beispiel', icon='magnifying_glass')`, `label('Zusammenfassung', icon='summary')`, `label('Selbstkontrolle', icon='arrow_right', link='https://…')` + `{{ qr_code('https://…') }}` |
 | exercise, solution, other boxes | `> [!AUFGABE] Aufgabe 1: Titel` then `> text` lines; also `LOESUNG`, `HINWEIS`, `MERKSATZ`, `LERNZIEL`, `SELBSTKONTROLLE`, `KOMMENTAR` (an unknown kind becomes a Hinweis) |
 | definition that should stand out | `{{ frame() }}` directly above the paragraph (`color=`, `background=`, `thickness=`) |
@@ -132,6 +137,8 @@ These are the mistakes the render step most often rejects. The full lists are in
   `learning_objectives()` stands *directly* above the table (or its `Tabelle:` line). `index`, `link`, `color`,
   `footnote`, `ref`, `cite` are inline. `anchor()` goes at the end of a heading. `uuid()` goes at the very end of
   its heading or paragraph.
+- **`note()` takes no text.** Its paragraph is the next line: `{{ note('Text') }}` is a problem («takes 0
+  positional arguments»). A `label()` with `offset_y` needs a `note()` as the next block.
 - **Enclosing calls.** `{% call x() %}` and `{% endcall %}` each stand on a line of their own. The only
   exception is `content()` inside a cell. A `note`/`frame` call holds only paragraphs, lists and `formula()`
   lines. A `table` call holds only the `Tabelle:` line and the table. `list()` and `content()` exist only as calls.

@@ -42,6 +42,30 @@ its check is a problem with its file and line; then nothing is converted.
   equation control (Word shows an equation in another one inline, and removes an equation control when the formula is
   edited); a block holding a display formula, e.g. a table with a formula alone in a cell, gets none.
 
+## Symbols
+
+A symbol is a character like any other: type or paste it into the text, a table cell or the text of a call
+(`{{ color('✓') }}`) — the files are UTF-8; bold, italic and `color()` work on it. On Windows: **Win + .** (the emoji
+panel, its tab **Ω**: symbols), the Character Map (`charmap`) or Word's Insert › Symbol and copy it; in an HTML table
+also as a character reference (`&#x25A1;` is □). A formula is a `formula()`; these symbols are for the text.
+
+The text's font Meta OT (template `textbook_2026_V02_MetaOT.dotx`; all its weights alike) has these — in Word and in
+the PDF they look like the text around them:
+
+| Group | Symbols to copy |
+|---|---|
+| Boxes, shapes | □ ■ ○ ● ◊ ▸ ◂ ▴ ▾ |
+| Arrows | ← → ↑ ↓ ↖ ↗ ↘ ↙ |
+| Marks | • · † ‡ § ¶ № © ® ™ |
+| Mathematics, units | ± × ÷ − ⋅ ≈ ≠ ≤ ≥ ∞ √ ∑ ∏ ∫ ∂ ∆ Δ Ω µ π ° ‰ |
+| Fractions, small figures | ½ ¼ ¾ ⅓ ⅔ ⅛ ⅜ ⅝ ⅞ ¹ ² ³ ⁴ ₀ ₁ ₂ ₃ |
+| Typography | – — … « » ‹ › „ “ ” ‚ ‘ ’ € |
+
+Other symbols, e.g. ✓ ✗ ☐ ☑ ☒ ★ ☎, are not in Meta OT: the PDF takes them from another font (DejaVu Sans), Word from
+a font of the computer that has them — they look a little different from the text. The template import writes the box
+of Wingdings (Insert › Symbol, e.g. the boxes of a check list) as □ and a character of the font Symbol as its
+character; another symbol it leaves out and lists in `CONVERT.md`.
+
 ## The Word imports
 
 Two importers write a document's files from a Word document into `content/<document>/`, every call with a `uuid=`,
@@ -150,6 +174,8 @@ Version: 2026, Stand 29. September 2026
 Dieses Dokument wurde …             Base Text
 ```
 
+The band's lines are bold, in the font of the template's Heading 1 (`textbook_2026_V02.dotx`: Roboto).
+
 The colour band starts at the top edge with the logo at the top right; page 1 has no header or footer, the next entry
 starts on page 2. `image`: a picture filling page 1 below the band, full width down to the bottom edge; then `src`
 holds only the band lines (checked) and the imprint goes onto a page of its own with `imprint()`. Both files must
@@ -241,7 +267,7 @@ the placeholder `((bild.png))`).
 | `width` | `'8cm'` | cm, mm, pt or % of the text column; alone, the height follows from the aspect ratio |
 | `height` | `'5cm'` | cm, mm or pt; with `width` too, the picture fits into the box (never distorted) |
 | `scale` | `'90%'` | of the native size (pixels / dpi); not with `width` or `height` |
-| `align` | `'right'` | `'left'`, `'center'` (default; `'left'` with `wrap`) or `'right'` |
+| `align` | `'right'` | `'left'`, `'center'` (default; `'left'` with `wrap`) or `'right'` (the Word import keeps the alignment of the picture's paragraph) |
 | `border` | `True` | a grey ½ pt line |
 | `crop` | `'0 5%'` | top right bottom left in % of the picture, 1 to 4 values like CSS; Word crops, the file stays |
 | `wrap` | `True` | floating: picture and caption in a frame on the `align` side, the text flows around; not with `'center'` |
@@ -383,7 +409,11 @@ like `&amp;`, calls like `image()` and Markdown in the cells as in a pipe table:
 
 Its header rows — bold and repeated on every page — are the rows of `<thead>`; without `<thead>` the table has no
 header row, its first row looks like the others, also with `<th>` cells (a pipe table's first row is one, with its
-separator row `| --- |`). Its widest row gives the number of columns; a row also counts the columns its `colspan`
+separator row `| --- |`). The template import writes the header rows of a Word table in `<thead>`, as `<th>` cells:
+its first row if the header look of its style is on (Table Design: Header Row — Word's default for a new table), the
+rows Word repeats on every page, and the rows below them a merged cell of them takes (none if it goes down to the last
+row; a picture or layout table has none). Bold, italic and the other inline formatting work in any cell, header or
+not: `<strong>`/`**…**`, `<em>`/`*…*`, `color()`, `link()`, `footnote()`, `formula()` … Its widest row gives the number of columns; a row also counts the columns its `colspan`
 cells and the `rowspan` cells above it take, so the widths of `table()` are those of the grid.
 
 `colspan="m"` on a `<td>` or `<th>`: the cell and the m − 1 cells beside it are one cell (in Word merged
@@ -426,9 +456,67 @@ A head of two rows with groups of columns («Reglertyp» two columns wide and tw
 </table>
 ```
 
+`vertical` on a `<td>` or `<th>`: the cell's text turned, read from bottom to top (`vertical` or `vertical="up"`) or
+from top to bottom (`vertical="down"`) — in Word the cell's text direction, its text centred along the cell. E.g. a
+label beside a group of rows (the template import writes `vertical="up"` or `vertical="down"` for a cell Word turns):
+
+```markdown
+{% call table('1.9cm', '12.1cm', '1.6cm') %}
+<table>
+  <tr>
+    <td rowspan="3" vertical="up">Bewertungskriterien</td>
+    <td>Funktionsumfang vollständig geprüft</td>
+    <td></td>
+  </tr>
+  <tr><td>Benutzerfreundlichkeit getestet</td><td></td></tr>
+  <tr><td>Lizenzmodell und Kosten verstanden</td><td></td></tr>
+</table>
+{% endcall %}
+```
+
+`align` and `valign` on a `<td>` or `<th>`: where the cell's text stands in it — `align="left"` (the default),
+`"center"` or `"right"`, the alignment of each of its paragraphs; `valign="top"` (the default), `"middle"` (also
+`"center"`) or `"bottom"`, the cell's vertical alignment. A cell over several rows or columns (`rowspan`, `colspan`)
+places its text in the whole merged cell. Both mean what is seen on the page, also in a turned cell: there
+`valign="bottom"` is the bottom of the cell, where a text read from bottom to top starts (the converter sets Word's
+alignments, which turn with the text, accordingly); a turned cell without them has its text centred along the cell
+(`valign="middle"`) at its left side (`align="left"`). The template import writes them for a cell Word aligns so (not
+the defaults; the alignment of a cell's paragraphs only if all of them with text have it):
+
+```markdown
+<table>
+  <tr>
+    <td rowspan="2" align="center" valign="middle">Gruppe</td>
+    <td>Gewichtung</td>
+    <td align="right">5</td>
+  </tr>
+  <tr>
+    <td>Bewertung</td>
+    <td align="right" valign="bottom">3</td>
+  </tr>
+</table>
+```
+
+`solution` (without a value) on a `<td>` or `<th>`: the cell is a solution — its paragraphs in the style Solutions,
+red by the template, like the text of a `> [!LOESUNG]` box (a list item in the cell keeps its list's style). Bold,
+italic and `color()` work inside it (`color()` instead of the red). It goes with `align`, `valign`, `vertical`,
+`rowspan` and `colspan`; a pipe table has no attributes. The template import writes it for a cell whose paragraphs
+with text are all in the style Solutions (a cell with other text too: plain text), e.g. the crosses of a self-check:
+
+```markdown
+<table>
+  <tr>
+    <td solution>X</td>
+    <td>Flächen mit einer stetigen Krümmung</td>
+  </tr>
+</table>
+```
+
 Other tags, a `rowspan` or `colspan` that is no whole number from 1, a `rowspan` that goes beyond the header rows or
-the last row, a `colspan` that runs into a column of a `rowspan` cell above (the converter shortens them), a table
-inside a cell, text outside of a cell and a missing `</table>` are problems.
+the last row, a `colspan` that runs into a column of a `rowspan` cell above (the converter shortens them), a
+`vertical` other than `up` or `down`, an `align` other than `left`, `center` or `right`, a `valign` other than `top`,
+`middle` (`center`) or `bottom`, a `solution` with a value, a table inside a cell, text outside of a cell and a missing
+`</table>` are problems.
 
 `type`: the kind of table, `'default'` (the default: a table as above) or `'pictures'`: the table as pictures side by
 side, e.g. `{% call table('8.2cm', '7.8cm', type='pictures') %}` (the
@@ -476,8 +564,8 @@ lines are captions) or the learning objectives:
 Each kind of table can also be written without HTML, as a pipe table: one line per row, the cells between `|`; in a
 cell `<br>` is a line break (and an empty line, `<br><br>`, a new paragraph in a layout table), a line starting with
 `- ` or `1. ` a list item, and `image()`, `formula()`, `content()` and Markdown work as in an HTML cell. Not possible in
-a pipe table: cells over several rows or columns (`rowspan`, `colspan`), a cell over several lines and a `|` in a
-cell's text — these need an HTML table.
+a pipe table: cells over several rows or columns (`rowspan`, `colspan`), turned or aligned cells (`vertical`,
+`align`, `valign`), a cell over several lines and a `|` in a cell's text — these need an HTML table.
 
 A normal table with a header row (the separator row `| --- |`), its caption and a name for `ref()`; the header row is
 repeated on every page, a list in a cell:

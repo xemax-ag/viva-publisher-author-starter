@@ -131,6 +131,44 @@ Tabelle: Bildformate im Vergleich
 ```
 {% endraw %}
 
+## Ausrichtung, gedrehter Text und Lösungen in Zellen
+
+Auf `<td>` und `<th>` einer HTML-Tabelle legen `align` (`left`, `center`, `right`) und `valign` (`top`, `middle`, `bottom`) fest, wo der Text in der Zelle steht; `vertical` dreht ihn (`up`: von unten nach oben, `down`: von oben nach unten):
+
+{% call table('1.5cm', '5cm', '5cm', '*') %}
+<table>
+  <thead>
+    <tr><th></th><th>Links, oben</th><th align="center">Zentriert, Mitte</th><th align="right">Rechts, unten</th></tr>
+  </thead>
+  <tr>
+    <td vertical="up" align="center" valign="middle">Werte</td>
+    <td>Zeile 1<br>Zeile 2<br>Zeile 3</td>
+    <td align="center" valign="middle">Mitte</td>
+    <td align="right" valign="bottom">unten</td>
+  </tr>
+</table>
+{% endcall %}
+
+`solution` ohne Wert setzt eine Zelle in die Formatvorlage Solutions, rot wie eine Lösung, z. B. die Kreuze einer Selbstkontrolle:
+
+{% call table('1.5cm', '*') %}
+<table>
+  <tr><td solution align="center">X</td><td>Freiformflächen sind stetig gekrümmt.</td></tr>
+  <tr><td align="center">□</td><td>Freiformflächen sind immer eben.</td></tr>
+</table>
+{% endcall %}
+
+{% raw %}
+```markdown
+<tr>
+  <td vertical="up" align="center" valign="middle">Werte</td>
+  <td align="center" valign="middle">Mitte</td>
+  <td align="right" valign="bottom">unten</td>
+</tr>
+<tr><td solution align="center">X</td><td>Freiformflächen sind stetig gekrümmt.</td></tr>
+```
+{% endraw %}
+
 ## Bilder nebeneinander
 
 `type='pictures'` setzt Bilder ohne Linien nebeneinander, unter jedem seine Beschriftung; die Tabelle bleibt auf einer Seite und hat keine Tabellennummer.
