@@ -1,17 +1,15 @@
-# Management Summary {{ uuid('8cd8f460-8367-4a93-aa8e-9c7ba1188607') }}
+Ein Lehrmittel entsteht hier als Ordner von Markdown-Dateien: ein Manifest \_main\_.md legt die Reihenfolge fest, jedes Kapitel ist eine Datei, Bilder liegen im Ordner images/. Der Konverter prüft jeden Befehl, schreibt daraus ein Word-Dokument nach der Vorlage textbook_2026_V02 und erstellt das PDF. {{ uuid('260986ca-a942-4c41-bc9d-4fbd3b49aa29') }}
 
-Ein Lehrmittel entsteht hier als Ordner von Markdown-Dateien: ein Manifest `_main_.md` legt die Reihenfolge fest, jedes Kapitel ist eine Datei, Bilder liegen im Ordner `images`. Der Konverter prüft jeden Befehl, schreibt daraus ein Word-Dokument nach der Vorlage textbook_2026_V02 und erstellt das PDF. {{ uuid('73c3206e-3e60-4e93-a7e2-298123162e20') }}
+## Was dieses Dokument zeigt {{ uuid('099a7f58-8e48-40f0-b543-34f5a0d80675') }}
 
-## Was dieses Dokument zeigt {{ uuid('fe3ee8cd-fce2-47f8-bd07-fd2d1252113c') }}
-
-{% call list(uuid='56b6dfc5-a29b-4ae7-acdf-1922ebbe80be') %}
-- Kapitel {{ ref('kap_text', uuid='9d9b32ad-52e7-4e3f-b167-952a8bb368dc') }}: Überschriften, Auszeichnungen, Listen, Verweise, Fussnoten und Kommentare
-- Kapitel {{ ref('kap_bilder', uuid='50722e9b-b5a9-4642-afb4-b093524f2f57') }}: Bilder mit allen Optionen, QR-Codes und Rasterpapier
-- Kapitel {{ ref('kap_tabellen', uuid='eba7b953-2a21-4c49-ae20-3d1b7a7cdb48') }}: Tabellen als Pipe- und HTML-Tabelle, Bildtabellen und Layouttabellen
-- Kapitel {{ ref('kap_formeln', uuid='63be7a0f-3335-4680-bf21-894b6ce45b0b') }}: Formeln im Text und als abgesetzte Gleichung
-- Kapitel {{ ref('kap_didaktik', uuid='5a5c5b4d-1d8a-4d3e-b1e4-406c1d1dc36d') }}: Lernziele, Etiketten, Hinweise, Rahmen und Aufgaben
+{% call list(uuid='38ef7e96-e691-4e43-a26d-b0b5010052e2') %}
+- Kapitel {{ ref('text_und_struktur', uuid='196b4033-0245-4422-93bf-fef0df559e38') }}: Überschriften, Auszeichnungen, Listen, Verweise, Fussnoten und Kommentare
+- Kapitel {{ ref('bilder', uuid='2f30c2e7-134f-4586-999a-c1ef2ec99674') }}: Bilder mit allen Optionen, QR-Codes und Rasterpapier
+- Kapitel {{ ref('tabellen', uuid='5fecb166-f57b-4c82-ac00-300ec15292b9') }}: Tabellen als Pipe- und HTML-Tabelle, Bildtabellen und Layouttabellen
+- Kapitel {{ ref('formeln', uuid='13020f67-0695-4e04-b291-277110041fb7') }}: Formeln im Text und als abgesetzte Gleichung
+- Kapitel {{ ref('didaktische_elemente', uuid='5f7a8a06-feb0-4cad-ba07-da97c667a29d') }}: Lernziele, Etiketten, Hinweise, Rahmen und Aufgaben
 {% endcall %}
 
-## So arbeiten Sie damit {{ uuid('f25a7dc5-d1a3-421a-a909-b1b415320ae1') }}
+## So arbeiten Sie damit {{ uuid('b5f26e8a-6aa7-4950-b5cb-fa3511e7676d') }}
 
-Jeder Abschnitt zeigt zuerst das Ergebnis und darunter den Markdown-Code, der es erzeugt. Diese Seite selbst ist eine Management Summary: sie steht vor dem Inhaltsverzeichnis, ihre Überschriften sind nicht nummeriert. {{ uuid('f583d53c-cb11-4c52-9e4d-279c26c3e3a6') }}
+Jeder Abschnitt zeigt zuerst das Ergebnis und darunter den Markdown-Code, der es erzeugt. Diese Seite selbst ist eine Management Summary: sie steht vor dem Inhaltsverzeichnis, ihre Überschriften sind nicht nummeriert. {{ uuid('8cba84bb-94d1-412b-8c0a-96b6c3f985a1') }}

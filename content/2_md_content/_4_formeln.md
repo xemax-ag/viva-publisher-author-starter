@@ -1,65 +1,45 @@
-# Formeln {{ anchor('kap_formeln', uuid='8444207b-d21e-44bd-bfb1-d1c000dd5b6f') }} {{ uuid('351cb675-b45a-4cbe-828a-ff8e9273a9fb') }}
+# Formeln {{ anchor('formeln', uuid='6f886ea8-9ddf-4409-8658-5808d22df542') }} {{ uuid('2aef3c2e-873f-4ea1-9e19-90434e83c3b6') }}
 
-Formeln schreiben Sie in LaTeX {{ cite('lamport1994', uuid='89fb93a3-2ea4-45a5-9cef-9828653fa9e7') }}; der Konverter macht daraus Word-Gleichungen, die sich in Word weiter bearbeiten lassen. Das Rendern übersetzt jede Formel einmal zur Probe: Ein Fehler im LaTeX ist ein Problem mit Datei und Zeile. {{ uuid('184921ba-09ac-4314-be65-3b4288418afc') }}
+Formeln schreiben Sie in LaTeX {{ cite('lamport1994', uuid='e7eaa184-7860-4700-a598-f539bd7914ba') }}; der Konverter macht daraus Word-Gleichungen, die sich in Word weiter bearbeiten lassen. Das Rendern übersetzt jede Formel einmal zur Probe: Ein Fehler im LaTeX ist ein Problem mit Datei und Zeile. {{ uuid('79e4a89e-aca5-4d07-a5d6-356b53bd5a74') }}
 
-## Formeln im Text {{ uuid('8d50f68e-aa43-4260-96ec-a43644237887') }}
+## Formeln im Text {{ uuid('e1a76808-d85a-4a4d-8ed4-b2b2ddaac861') }}
 
-Im Fliesstext steht `formula()` mitten im Satz: Die elektrische Leistung {{ formula('P = U \cdot I', uuid='0f3b144a-7bef-48b8-9e74-a8c6722cb493') }} ist das Produkt aus Spannung {{ formula('U', uuid='26773c6b-5d57-4b0d-a2bf-61545c4f48db') }} und Strom {{ formula('I', uuid='72ef0946-7235-4d0e-a11d-d4c2c4fc188e') }}. Eine Formel mit Apostroph steht in doppelten Anführungszeichen: {{ formula("f'(x) = 2x", uuid='bfe411ea-a5da-44d1-b2e0-ecf246207485') }}. {{ uuid('6e95bfee-fe5f-4048-aeb7-fedc0fe501a4') }}
+Im Fliesstext steht formula() mitten im Satz: Die elektrische Leistung {{ formula('P = U \cdot I', uuid='b8437755-a767-4526-b94a-a2ab9092a673') }} ist das Produkt aus Spannung {{ formula('U', uuid='5c5cf7cc-f7a6-49d6-b3ac-8e8a3a7ffcdb') }} und Strom {{ formula('I', uuid='2a47923a-81d9-4393-9d52-56211d516944') }}. Eine Formel mit Apostroph steht in doppelten Anführungszeichen: {{ formula("f'(x) = 2x", uuid='6abedf59-6dfb-428c-8e62-a95671520342') }}. {{ uuid('20882ebd-e0f3-4fa5-97fd-41cfeb138de3') }}
 
-{% raw %}
-```markdown
-Die elektrische Leistung {{ formula('P = U \cdot I') }} ist das Produkt …
-{{ formula("f'(x) = 2x") }}
-```
-{% endraw %}
+Die elektrische Leistung {% raw %}{{ formula('P = U \cdot I') }}{% endraw %} ist das Produkt …<br>{% raw %}{{ formula("f'(x) = 2x") }}{% endraw %} {{ uuid('b409f4a5-8b34-4b43-ba54-4bfe79e12337') }}
 
-## Abgesetzte Gleichungen {{ uuid('0b9de1da-6d0c-4a3d-9529-c9a8d470ae2f') }}
+## Abgesetzte Gleichungen {{ uuid('3b235f83-acc6-4598-851a-66a124dcf692') }}
 
-Auf einer eigenen Zeile wird `formula()` eine abgesetzte Gleichung, ohne `align` links am Einzug ihrer Formatvorlage, mit `align` zentriert oder rechts: {{ uuid('8568ef47-5069-43d8-9be3-d050ade494e2') }}
+Auf einer eigenen Zeile wird formula() eine abgesetzte Gleichung, ohne align links am Einzug ihrer Formatvorlage, mit align zentriert oder rechts: {{ uuid('ba71f1b5-e17d-4bb3-9a6a-252203b993f0') }}
 
-{{ formula('W = F \cdot s', uuid='040f1cfd-4249-4123-86dd-41277d310624') }}
+{{ formula('W = F \cdot s', uuid='e13e4754-476c-46a4-8757-5eb10bcba38e') }}
 
-{{ formula('P = \frac{W}{t}', align='center', uuid='4f1bc5e7-67e8-4305-a334-d8ed44c535fd') }}
+{{ formula('P = \frac{W}{t}', align='center', uuid='43cbbfe2-2425-4cc1-93f9-597cc4dc03f4') }}
 
-{{ formula('\eta = \frac{P_{ab}}{P_{zu}} \cdot 100\,\%', align='right', uuid='2fbf91bc-f12e-43ed-b082-bd891d8f1753') }}
+{{ formula('\eta = \frac{P_{\textit{ab}}}{P_{\textit{zu}}} \cdot 100\text{ }\%', align='right', uuid='092da505-529a-416a-a6bc-10d8b0294160') }}
 
-Eine Word-Gleichung entsteht nur mit `formula()`: LaTeX zwischen Dollarzeichen bleibt Text. {{ uuid('1a54f293-8fff-4310-bc12-d78f676a8583') }}
+Eine Word-Gleichung entsteht nur mit formula(): LaTeX zwischen Dollarzeichen bleibt Text. {{ uuid('becafd7f-d109-4996-8593-7ada29e88144') }}
 
-{% raw %}
-```markdown
-{{ formula('W = F \cdot s') }}
-{{ formula('P = \frac{W}{t}', align='center') }}
-{{ formula('\eta = \frac{P_{ab}}{P_{zu}} \cdot 100\,\%', align='right') }}
-```
-{% endraw %}
+{% raw %}{{ formula('W = F \cdot s') }}{% endraw %}<br>{% raw %}{{ formula('P = \frac{W}{t}', align='center') }}{% endraw %}<br>{% raw %}{{ formula('\eta = \frac{P\_{ab}}{% endraw %}{P\_{zu}} \cdot 100\\,\\%', align='right') }} {{ uuid('bafa4596-808b-4c71-b37d-bf0ce0640222') }}
 
-## Was LaTeX kann {{ uuid('67379b8b-ae14-4c6f-b684-3efe248882ff') }}
+## Was LaTeX kann {{ uuid('82b39078-3d70-42f1-bb4c-76952b3e9ffe') }}
 
-Brüche, Wurzeln, Indizes und Exponenten, griechische Buchstaben, Summen und Integrale, Text in einer Formel und Matrizen: {{ uuid('8dd3b987-7b9b-4e32-9dfb-000d44df122c') }}
+Brüche, Wurzeln, Indizes und Exponenten, griechische Buchstaben, Summen und Integrale, Text in einer Formel und Matrizen: {{ uuid('77fc31c9-ad17-4853-b7bd-06ac3e9e4068') }}
 
-{{ formula('x_{1,2} = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}', uuid='a7daf50f-f5a3-496d-a718-2a3563cb9f4f') }}
+{{ formula('x_{1,2} = \frac{- b \pm \sqrt{b^{2} - 4\textit{ac}}}{2a}', uuid='f70b11bf-486e-494f-b694-a1c0a66d14e2') }}
 
-{{ formula('\bar{x} = \frac{1}{n} \sum_{i=1}^{n} x_i', uuid='114665a0-73be-4c78-a982-7d6ad0adc34b') }}
+{{ formula('\bar{x} = \frac{1}{n}\sum_{i = 1}^{n}x_{i}', uuid='83b8c577-27b7-416e-aa93-0bb8870f192b') }}
 
-{{ formula('W = \int_{s_1}^{s_2} F(s)\,\mathrm{d}s', uuid='ce440ead-16e0-452a-85be-55a9fe11091d') }}
+{{ formula('W = \int_{s_{1}}^{s_{2}}F(s)\text{ }\textit{ds}', uuid='2f779866-288f-4db3-90cb-75b6e98ec9d5') }}
 
-{{ formula('\omega = 2 \pi f \quad \text{mit} \quad f = 50\,\text{Hz}', uuid='67e34f2a-c0ae-4e43-a2af-bcd4eddf67bb') }}
+{{ formula('\omega = 2\pi f\text{\quad mit\quad}f = 50\text{ Hz}', uuid='b4aa0c27-8bc3-4d72-8f86-969f1661e735') }}
 
-{{ formula('\begin{pmatrix} \cos\varphi & -\sin\varphi \\ \sin\varphi & \cos\varphi \end{pmatrix}', uuid='42c101dd-1075-4e4f-8f09-1c956d7438fd') }}
+{{ formula('\begin{pmatrix} \cos\varphi & - \sin\varphi \\ \sin\varphi & \cos\varphi \end{pmatrix}', uuid='3793dc4a-2882-4011-8189-79023e6ea949') }}
 
-Auch eine Formel kann einen Identifikator tragen: {{ uuid('9b0ed12d-b164-46f6-896c-44a1da5ac15e') }}
+Auch eine Formel kann einen Identifikator tragen: {{ uuid('7be3021a-edb1-4098-a9ed-c9afba65f3d4') }}
 
-{{ formula('E = m \cdot c^2', uuid='1105b258-0ab7-4f07-8c43-6debe6263e68') }}
+{{ formula('E = m \cdot c^{2}', uuid='1105b258-0ab7-4f07-8c43-6debe6263e68') }}
 
-{% raw %}
-```markdown
-{{ formula('x_{1,2} = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}') }}
-{{ formula('\bar{x} = \frac{1}{n} \sum_{i=1}^{n} x_i') }}
-{{ formula('W = \int_{s_1}^{s_2} F(s)\,\mathrm{d}s') }}
-{{ formula('\omega = 2 \pi f \quad \text{mit} \quad f = 50\,\text{Hz}') }}
-{{ formula('\begin{pmatrix} \cos\varphi & -\sin\varphi \\ \sin\varphi & \cos\varphi \end{pmatrix}') }}
-{{ formula('E = m \cdot c^2', uuid='1105b258-0ab7-4f07-8c43-6debe6263e68') }}
-```
-{% endraw %}
+{% raw %}{{ formula('x\_{1,2} = \frac{-b \pm \sqrt{b^2 - 4ac}}{% endraw %}{2a}') }}<br>{% raw %}{{ formula('\bar{x} = \frac{1}{n} \sum\_{i=1}^{n} x_i') }}{% endraw %}<br>{% raw %}{{ formula('W = \int\_{s_1}^{s_2} F(s)\\,\mathrm{d}s') }}{% endraw %}<br>{% raw %}{{ formula('\omega = 2 \pi f \quad \text{mit} \quad f = 50\\,\text{Hz}') }}{% endraw %}<br>{% raw %}{{ formula('\begin{pmatrix} \cos\varphi & -\sin\varphi \\\ \sin\varphi & \cos\varphi \end{pmatrix}') }}{% endraw %}<br>{% raw %}{{ formula('E = m \cdot c^2', uuid='1105b258-0ab7-4f07-8c43-6debe6263e68') }}{% endraw %} {{ uuid('f5be7416-1c57-413f-8464-b9f5266d2872') }}
 
-Formeln in Tabellenzellen zeigt {{ ref('tab_bildformate', uuid='c7dff148-7f3c-4a4e-b60c-7e1354f88b7b') }}, Formeln in Hinweisen, Rahmen und Aufgaben das Kapitel {{ ref('kap_didaktik', uuid='bfb98ece-4fc3-4729-ac6c-f731cf19297a') }}. {{ uuid('04eb8365-fe2e-4f7f-adfc-ac3e99eac5e1') }}
+Formeln in Tabellenzellen zeigt {{ ref('bildformate_im_vergleich', uuid='4ea06dd1-2309-4403-a06d-6943b0abbbb1') }}, Formeln in Hinweisen, Rahmen und Aufgaben das Kapitel {{ ref('didaktische_elemente', uuid='1e5048a4-d986-4bbe-813b-719b512ecb2e') }}. {{ uuid('1cb91172-fcbf-42ba-9574-cd2b5515097f') }}

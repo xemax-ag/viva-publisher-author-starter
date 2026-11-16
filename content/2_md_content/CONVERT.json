@@ -1,0 +1,72 @@
+{
+ "source": "demo_starter.docx",
+ "title": "Demo Starter",
+ "cover": true,
+ "cover_picture": true,
+ "imprint": true,
+ "chapters": [
+  {
+   "number": 1,
+   "title": "Text und Struktur",
+   "file": "_1_text_und_struktur.md",
+   "picture": true,
+   "source_words": 870,
+   "missing_words": 25
+  },
+  {
+   "number": 2,
+   "title": "Bilder",
+   "file": "_2_bilder.md",
+   "picture": true,
+   "source_words": 735,
+   "missing_words": 29
+  },
+  {
+   "number": 3,
+   "title": "Tabellen",
+   "file": "_3_tabellen.md",
+   "picture": true,
+   "source_words": 805,
+   "missing_words": 14
+  },
+  {
+   "number": 4,
+   "title": "Formeln",
+   "file": "_4_formeln.md",
+   "picture": true,
+   "source_words": 252,
+   "missing_words": 11
+  },
+  {
+   "number": 5,
+   "title": "Didaktische Elemente",
+   "file": "_5_didaktische_elemente.md",
+   "picture": true,
+   "source_words": 745,
+   "missing_words": 25
+  }
+ ],
+ "back": [
+  "list_of_illustrations()",
+  "list_of_tables()",
+  "glossar('glossar.md')",
+  "bibliography('quellen.md')",
+  "keyword_index()"
+ ],
+ "deviations": [
+  {
+   "number": 1,
+   "file": "_1_text_und_struktur.md",
+   "line": 27,
+   "kind": "typed_number",
+   "detail": "3. Schritt: Diese Zeile beginnt mit Zahl und Punkt, ist aber keine Liste."
+  }
+ ],
+ "dropped": {
+  "band_lines": 32,
+  "decorations": 6,
+  "contents": 1,
+  "chapter_page_breaks": 5,
+  "back_matter": 16
+ }
+}

@@ -1,132 +1,87 @@
-# Bilder {{ anchor('kap_bilder', uuid='0f027659-e82c-4227-af19-090f0da3ab86') }} {{ uuid('c4222003-8c40-442b-929c-7ec5df4b9c90') }}
+# Bilder {{ anchor('bilder', uuid='88e79be2-84c2-42b2-b2ad-9b0b290d7e51') }} {{ uuid('d7bf0638-7940-488d-9979-8262658cb095') }}
 
-Bilder stehen mit `image()` auf einer eigenen Zeile, ihr Pfad relativ zur Kapiteldatei. PNG und JPG werden eingebettet, SVG als Vektorgrafik mit einem PNG als Ersatz für Programme ohne SVG. Ein Bild ist nie breiter als die Textspalte von 16 cm. Das Bild über diesem Kapitel setzt das Manifest mit `chapter(…, image=…)`, das Titelbild mit `cover(…, image=…)`. {{ uuid('3801f0d4-0a55-4ec6-87e2-4b05e3644a37') }}
+Bilder stehen mit image() auf einer eigenen Zeile, ihr Pfad relativ zur Kapiteldatei. PNG und JPG werden eingebettet, SVG als Vektorgrafik mit einem PNG als Ersatz für Programme ohne SVG. Ein Bild ist nie breiter als die Textspalte von 16 cm. Das Bild über diesem Kapitel setzt das Manifest mit chapter(…, image=…), das Titelbild mit cover(…, image=…). {{ uuid('ae2df53d-ec9d-42af-a23d-5c1af22308ce') }}
 
-## Bild mit Bildunterschrift {{ uuid('16913343-9bb3-44b7-ab49-bc697646b8d3') }}
+## Bild mit Bildunterschrift {{ uuid('49bf72da-e603-4ecf-98c3-a4d193d99a7c') }}
 
-Ein `title` gibt dem Bild eine nummerierte Bildunterschrift, die das Abbildungsverzeichnis aufführt; `anchor` macht es zum Ziel eines Verweises: {{ ref('abb_workflow', uuid='d847d5cc-bdbd-4d2e-b23a-1fd973a2062d') }} steht auf Seite {{ ref('abb_workflow', 'page', uuid='ef2acc1a-e23d-40a6-8698-29ece20004b7') }}. Der `alt_text` ist der Alternativtext für Screenreader. {{ uuid('4a9913d0-dcf4-4298-83c0-cf8bf693f8d6') }}
+Ein title gibt dem Bild eine nummerierte Bildunterschrift, die das Abbildungsverzeichnis aufführt; anchor macht es zum Ziel eines Verweises: {{ ref('vom_manuskript_ueber_markdown_und_word_z', uuid='b3ffcdf4-2c9b-47d1-b949-8ac8c27dd5aa') }} steht auf Seite {{ ref('vom_manuskript_ueber_markdown_und_word_z', 'page', uuid='be8ab874-7c51-4878-a764-ffc70fbbba58') }}. Der alt_text ist der Alternativtext für Screenreader. {{ uuid('1f946c54-8fa7-4762-bd4f-dab67223f1c7') }}
 
-{{ image('images/workflow.svg', width='14cm', title='Vom Manuskript über Markdown und Word zum PDF', anchor='abb_workflow', alt_text='Vier Dokumente mit Pfeilen: Manuskript, Markdown, Word, PDF', uuid='fae413b6-7a3d-44b9-8a3d-857164259422') }}
+{{ image('images/2_bilder/01.png', width='14.0cm', title='Vom Manuskript über Markdown und Word zum PDF', anchor='vom_manuskript_ueber_markdown_und_word_z', alt_text=None, uuid='7ae4b4ba-da77-4179-b766-afebb8807f3a') }}
 
-{% raw %}
-```markdown
-{{ image('images/workflow.svg', width='14cm', title='Vom Manuskript über Markdown und Word zum PDF',
-         anchor='abb_workflow', alt_text='Vier Dokumente mit Pfeilen: Manuskript, Markdown, Word, PDF') }}
-{{ ref('abb_workflow') }} steht auf Seite {{ ref('abb_workflow', 'page') }}.
-```
-{% endraw %}
+{% raw %}{{{% endraw %} image('images/workflow.svg', width='14cm', title='Vom Manuskript über Markdown und Word zum PDF',<br> anchor='abb_workflow', alt_text='Vier Dokumente mit Pfeilen: Manuskript, Markdown, Word, PDF') }}<br>{% raw %}{{ ref('abb_workflow') }}{% endraw %} steht auf Seite {% raw %}{{ ref('abb_workflow', 'page') }}{% endraw %}. {{ uuid('2ad6fb0e-bad5-4353-b6d8-f383359a04ad') }}
 
-## Grösse {{ uuid('bb867cc3-3839-4a93-a705-4077757e4dce') }}
+## Grösse {{ uuid('75e7360a-23b2-493c-a97a-2d63269d9efd') }}
 
-Die Breite `width` in cm, mm, pt oder Prozent der Textspalte; die Höhe folgt aus dem Seitenverhältnis. Mit `height` allein bestimmt die Höhe, mit beiden passt das Bild in den Rahmen, ohne verzerrt zu werden. `scale` bezieht sich auf die native Grösse der Datei (Pixel geteilt durch dpi): Das PNG des Flanschs hat 900 Pixel bei 300 dpi, also 7,6 cm. Bildschirmfotos verkleinern Sie nicht unter 84 %, sonst wird ihr Text zu klein; der Konverter warnt dann. {{ uuid('dbbb8a4d-328a-4352-8897-4354f85d2d04') }}
+Die Breite width in cm, mm, pt oder Prozent der Textspalte; die Höhe folgt aus dem Seitenverhältnis. Mit height allein bestimmt die Höhe, mit beiden passt das Bild in den Rahmen, ohne verzerrt zu werden. scale bezieht sich auf die native Grösse der Datei (Pixel geteilt durch dpi): Das PNG des Flanschs hat 900 Pixel bei 300 dpi, also 7,6 cm. Bildschirmfotos verkleinern Sie nicht unter 84 %, sonst wird ihr Text zu klein; der Konverter warnt dann. {{ uuid('252983cc-6479-4a58-a44d-795509b6ab07') }}
 
-{{ image('images/bauteil.png', width='5cm', title='Breite 5 cm', uuid='7a15e313-3f9a-47e4-8df0-b874b87094d6') }}
+{{ image('images/2_bilder/02.png', width='5.0cm', title='Breite 5 cm', alt_text=None, uuid='cdb07264-063e-483f-a9bf-032ca0cccaf5') }}
 
-{{ image('images/bauteil.png', width='50%', title='Breite 50 % der Textspalte', uuid='e15890a0-c537-4a06-a541-dd27be6ec396') }}
+{{ image('images/2_bilder/03.png', width='8.0cm', title='Breite 50 % der Textspalte', alt_text=None, uuid='efd40625-18c8-4252-b4b9-675253843f2d') }}
 
-{{ image('images/bauteil.png', height='3cm', title='Höhe 3 cm', uuid='24130409-bffe-4ea6-b006-1a1ba7400482') }}
+{{ image('images/2_bilder/04.png', width='4.8cm', title='Höhe 3 cm', alt_text=None, uuid='9fe26e96-1961-4a32-94b3-789cfafd0ef2') }}
 
-{{ image('images/bauteil.png', scale='90%', title='90 % der nativen Grösse', uuid='d74f6fbb-9ab8-4eee-a5cd-02407e7a894b') }}
+{{ image('images/2_bilder/05.png', width='6.9cm', title='90 % der nativen Grösse', alt_text=None, uuid='4248f3eb-b304-4a45-a091-6cfaca34c230') }}
 
-{% raw %}
-```markdown
-{{ image('images/bauteil.png', width='5cm', title='Breite 5 cm') }}
-{{ image('images/bauteil.png', width='50%', title='Breite 50 % der Textspalte') }}
-{{ image('images/bauteil.png', height='3cm', title='Höhe 3 cm') }}
-{{ image('images/bauteil.png', scale='90%', title='90 % der nativen Grösse') }}
-```
-{% endraw %}
+{% raw %}{{ image('images/bauteil.png', width='5cm', title='Breite 5 cm') }}{% endraw %}<br>{% raw %}{{ image('images/bauteil.png', width='50%', title='Breite 50 % der Textspalte') }}{% endraw %}<br>{% raw %}{{ image('images/bauteil.png', height='3cm', title='Höhe 3 cm') }}{% endraw %}<br>{% raw %}{{ image('images/bauteil.png', scale='90%', title='90 % der nativen Grösse') }}{% endraw %} {{ uuid('9971631d-6704-4694-9e1a-129b636c98c1') }}
 
-## Ausrichtung, Rahmen und Zuschnitt {{ uuid('c33d9807-4e57-4901-85dc-b9a5152bbc22') }}
+## Ausrichtung, Rahmen und Zuschnitt {{ uuid('791dc132-bfc8-4619-8128-63ba838f63ed') }}
 
-Ohne `align` steht ein Bild in der Mitte; `'left'` und `'right'` setzen es an den Rand. `border=True` zeichnet eine graue Linie um das Bild. `crop` schneidet in Prozent ab, in der Reihenfolge oben, rechts, unten, links wie in CSS; Word schneidet zu, die Datei bleibt unverändert. {{ uuid('8d2ea3a7-8cce-4f14-b5a4-f022e6d8510c') }}
+Ohne align steht ein Bild in der Mitte; 'left' und 'right' setzen es an den Rand. border=True zeichnet eine graue Linie um das Bild. crop schneidet in Prozent ab, in der Reihenfolge oben, rechts, unten, links wie in CSS; Word schneidet zu, die Datei bleibt unverändert. {{ uuid('cb54dda2-f5d5-4a37-83b7-0af38328bdaf') }}
 
-{{ image('images/bauteil.png', width='5cm', align='left', border=True, title='Links, mit Rahmen', uuid='46a7ab6a-191b-44e4-b61a-e4c68ff91435') }}
+{{ image('images/2_bilder/06.png', width='5.0cm', align='left', title='Links, mit Rahmen', alt_text=None, uuid='aac57484-46c6-43b0-a6b0-9c1f85613b3a') }}
 
-{{ image('images/bauteil.png', width='5cm', align='right', crop='0 25% 0 25%', title='Rechts, links und rechts je 25 % abgeschnitten', uuid='d7eeaaaf-fb17-4aaf-972c-46f5f463c124') }}
+{{ image('images/2_bilder/07.png', width='5.0cm', align='right', title='Rechts, links und rechts je 25 % abgeschnitten', alt_text=None, uuid='12a49a35-e1b8-44ac-82c6-e9be955c8ba1') }}
 
-{% raw %}
-```markdown
-{{ image('images/bauteil.png', width='5cm', align='left', border=True, title='Links, mit Rahmen') }}
-{{ image('images/bauteil.png', width='5cm', align='right', crop='0 25% 0 25%',
-         title='Rechts, links und rechts je 25 % abgeschnitten') }}
-```
-{% endraw %}
+{% raw %}{{ image('images/bauteil.png', width='5cm', align='left', border=True, title='Links, mit Rahmen') }}{% endraw %}<br>{% raw %}{{{% endraw %} image('images/bauteil.png', width='5cm', align='right', crop='0 25% 0 25%',<br> title='Rechts, links und rechts je 25 % abgeschnitten') }} {{ uuid('d57fe345-4e7f-41c0-85a8-9f84e12cb735') }}
 
-## Umfliessender Text {{ uuid('d01d1782-d5ae-4f75-a935-8476cabcd5a9') }}
+## Umfliessender Text {{ uuid('bd927a4b-c6ea-449a-a3fc-3ef5f2af0e32') }}
 
-{{ image('images/bauteil.png', width='6cm', align='right', wrap=True, title='Flansch, Draufsicht', uuid='b0636a9f-f6a8-4e8f-bd54-6ca992df9abe') }}
+{{ image('images/2_bilder/08.png', width='6.0cm', align='right', wrap=True, title='Flansch, Draufsicht', alt_text=None, uuid='95ca73fa-dda9-400a-a355-c3ddcd2eb797') }}
 
-Mit `wrap=True` steht das Bild mit seiner Bildunterschrift in einem Rahmen am Rand, der Text fliesst daneben vorbei. Das eignet sich für kleine Bilder neben einem längeren Absatz, etwa eine Zeichnung neben ihrer Beschreibung. Der Flansch in der Zeichnung hat vier Bohrungen auf einem Lochkreis; die strichpunktierten Linien sind Mittellinien, die Pfeile bemassen Aussendurchmesser und Lochkreis. In einer technischen Zeichnung stehen an diesen Massen Zahlen; hier bleibt die Zeichnung ohne Text, damit sie in jeder Sprache passt. {{ uuid('744812dd-492b-4bac-8f42-599c6b69bb92') }}
+Mit wrap=True steht das Bild mit seiner Bildunterschrift in einem Rahmen am Rand, der Text fliesst daneben vorbei. Das eignet sich für kleine Bilder neben einem längeren Absatz, etwa eine Zeichnung neben ihrer Beschreibung. Der Flansch in der Zeichnung hat vier Bohrungen auf einem Lochkreis; die strichpunktierten Linien sind Mittellinien, die Pfeile bemassen Aussendurchmesser und Lochkreis. In einer technischen Zeichnung stehen an diesen Massen Zahlen; hier bleibt die Zeichnung ohne Text, damit sie in jeder Sprache passt. {{ uuid('2df2e2b8-b100-4a12-b205-7b72fb618206') }}
 
-Ein umflossenes Bild steht links oder rechts, nie in der Mitte. Folgt kein Text, beginnt der nächste Block unter dem Bild. {{ uuid('e8d8d4be-71d3-474e-9688-a0592f7951bf') }}
+Ein umflossenes Bild steht links oder rechts, nie in der Mitte. Folgt kein Text, beginnt der nächste Block unter dem Bild. {{ uuid('7f551a3f-6897-43f4-937e-cedaa2a8a614') }}
 
-{% raw %}
-```markdown
-{{ image('images/bauteil.png', width='6cm', align='right', wrap=True, title='Flansch, Draufsicht') }}
+{% raw %}{{ image('images/bauteil.png', width='6cm', align='right', wrap=True, title='Flansch, Draufsicht') }}{% endraw %}<br><br>Mit wrap=True steht das Bild … {{ uuid('6e120f74-7748-4786-b597-8ed16974485e') }}
 
-Mit `wrap=True` steht das Bild …
-```
-{% endraw %}
+## Bildunterschrift ohne Nummer und gedrehtes Bild {{ uuid('aacca99f-68d5-4435-bd0a-8c493bb694a8') }}
 
-## Bildunterschrift ohne Nummer und gedrehtes Bild {{ uuid('cf4750ef-3920-4069-8d76-47bc51f28e00') }}
+Mit numbered=False steht nur der Titel unter dem Bild, ohne «Abbildung n:». rotate dreht das Bild um 90, 180 oder 270 Grad im Uhrzeigersinn, negativ dagegen; Breite und Zuschnitt gelten danach. So passt ein Diagramm im Querformat hochkant auf die Seite: {{ uuid('dbfb2259-2909-4c31-b318-05f54e0e7177') }}
 
-Mit `numbered=False` steht nur der Titel unter dem Bild, ohne «Abbildung n:». `rotate` dreht das Bild um 90, 180 oder 270 Grad im Uhrzeigersinn, negativ dagegen; Breite und Zuschnitt gelten danach. So passt ein Diagramm im Querformat hochkant auf die Seite: {{ uuid('121f5a97-c54d-49a7-921b-04429f6d5386') }}
+{{ image('images/2_bilder/09.png', width='7.0cm', title='Monatswerte, um 90 Grad gedreht', numbered=False, alt_text=None, uuid='047a1018-a393-4a70-823f-49388e56a1df') }}
 
-{{ image('images/diagramm.svg', width='7cm', rotate=-90, title='Monatswerte, um 90 Grad gedreht', numbered=False, uuid='127d5f40-6bcb-4dcc-bc58-6964492e01b1') }}
+{% raw %}{{ image('images/diagramm.svg', width='7cm', rotate=-90, title='Monatswerte, um 90 Grad gedreht', numbered=False) }}{% endraw %} {{ uuid('5928fb3c-b0fa-4066-a5fe-f470f47919a4') }}
 
-{% raw %}
-```markdown
-{{ image('images/diagramm.svg', width='7cm', rotate=-90, title='Monatswerte, um 90 Grad gedreht', numbered=False) }}
-```
-{% endraw %}
+## Markdown-Bild und Platzhalter {{ uuid('32bec117-2169-4eca-bfd4-f6bead1ca124') }}
 
-## Markdown-Bild und Platzhalter {{ uuid('bbcfb663-8b9f-41cb-9277-d255c9c5f25c') }}
+Auch die Markdown-Schreibweise für Bilder funktioniert; der Text in eckigen Klammern wird der Alternativtext, ein Titel in Anführungszeichen die Bildunterschrift: {{ uuid('425d01b6-662a-4a59-9380-4495b469b100') }}
 
-Auch die Markdown-Schreibweise für Bilder funktioniert; der Text in eckigen Klammern wird der Alternativtext, ein Titel in Anführungszeichen die Bildunterschrift: {{ uuid('78de80b6-5da7-49cc-a394-494e66bbebe3') }}
+{{ image('images/2_bilder/10.png', width='7.6cm', align='left', title='Flansch als Markdown-Bild', alt_text=None, uuid='5b24c54c-2937-4589-a9dc-c8222c28c006') }}
 
-![Flansch mit vier Bohrungen auf dem Lochkreis](images/bauteil.png "Flansch als Markdown-Bild")
-
-Fehlt ein Bild noch, steht sein Dateiname in doppelten runden Klammern als Platzhalter: {{ uuid('9165afd8-8259-45ac-b8d6-205fbea59e5d') }}
+Fehlt ein Bild noch, steht sein Dateiname in doppelten runden Klammern als Platzhalter: {{ uuid('122658e0-f343-4835-9494-680ab6a2b681') }}
 
 ((Foto_Druckmaschine.jpg))
 
-{% raw %}
-```markdown
-![Flansch mit vier Bohrungen auf dem Lochkreis](images/bauteil.png "Flansch als Markdown-Bild")
-((Foto_Druckmaschine.jpg))
-```
-{% endraw %}
+!\[Flansch mit vier Bohrungen auf dem Lochkreis](images/bauteil.png "Flansch als Markdown-Bild")<br>((Foto_Druckmaschine.jpg)) {{ uuid('80192fd9-6462-4ade-8567-136353663a48') }}
 
-## QR-Code {{ uuid('00d01816-41e9-4951-bcf4-a87ab0165f65') }}
+## QR-Code {{ uuid('09400cbb-f509-4ab7-b8c9-cd67c93db7a4') }}
 
-`qr_code()` erzeugt beim Rendern einen QR-Code; Grösse, Farbe und Ausrichtung sind wählbar. Ohne Text erscheint ein Warnzeichen, damit ein fehlender Code auffällt. {{ uuid('129d1abc-e68c-4b5a-b21e-8e53e3d340a8') }}
+qr_code() erzeugt beim Rendern einen QR-Code; Grösse, Farbe und Ausrichtung sind wählbar. Ohne Text erscheint ein Warnzeichen, damit ein fehlender Code auffällt. {{ uuid('7c05d3bb-4720-4c04-a719-3f4ae2772caf') }}
 
-{{ qr_code('https://commonmark.org', uuid='228fd415-091f-46db-a2fa-411c57b6ff39') }}
+{{ qr_code('https://commonmark.org', uuid='efbaa7b8-770d-4bab-abdf-5beb19f35d0b') }}
 
-{{ qr_code('https://spec.commonmark.org/0.31.2/', '2cm', '#03A4C0', 'center', uuid='18112119-2302-4692-acd5-c0b494156f7f') }}
+{{ qr_code('https://spec.commonmark.org/0.31.2/', uuid='2a8df86f-c27d-47c2-95e2-8d66e610b25f') }}
 
-{{ qr_code(size='2cm', alignment='right', uuid='55e993ef-4286-45c7-8ba1-245c15350fa6') }}
+{{ qr_code(None, uuid='6f4ce5c1-ed4b-49b3-b684-19380928b1af') }}
 
-{% raw %}
-```markdown
-{{ qr_code('https://commonmark.org') }}
-{{ qr_code('https://spec.commonmark.org/0.31.2/', '2cm', '#03A4C0', 'center') }}
-{{ qr_code(size='2cm', alignment='right') }}
-```
-{% endraw %}
+{% raw %}{{ qr_code('https://commonmark.org') }}{% endraw %}<br>{% raw %}{{ qr_code('https://spec.commonmark.org/0.31.2/', '2cm', '#03A4C0', 'center') }}{% endraw %}<br>{% raw %}{{ qr_code(size='2cm', alignment='right') }}{% endraw %} {{ uuid('6f632e93-cb1c-46f8-8e42-ae284b6cce90') }}
 
-## Rasterpapier {{ uuid('b65af3ac-1537-4983-a7fb-05bd6f6bcd82') }}
+## Rasterpapier {{ uuid('d7c615ea-be0f-4d02-b2a7-88c7249cd547') }}
 
-`grid()` zeichnet Häuschenpapier, etwa als Platz für eine Skizze oder eine Rechnung: ohne Argumente 32 × 47 Häuschen zu 5 mm, die eine ganze Seite füllen. {{ uuid('6aa2fa3f-9d09-4022-a55c-3406fa7f2514') }}
+grid() zeichnet Häuschenpapier, etwa als Platz für eine Skizze oder eine Rechnung: ohne Argumente 32 × 47 Häuschen zu 5 mm, die eine ganze Seite füllen. {{ uuid('0004986f-1f3d-41ed-b2f9-f4977e7858fc') }}
 
-{{ grid(n_height=6, uuid='1131ee38-6943-4644-886f-aaf2e235b783') }}
+{{ grid(n_height=6, uuid='1df12302-0278-41ce-9891-9b9f09fecb46') }}
 
-{{ grid('4mm', 20, 5, '0.2mm', '#03A4C0', 'center', uuid='86712346-9b62-4f62-a9a7-9302fb77e388') }}
+{{ grid(spacing='4mm', n_width=20, n_height=5, thickness='0.2mm', color='#03A4C0', alignment='center', uuid='a8b19705-a0bb-49b8-bee0-ea36e6c3ae46') }}
 
-{% raw %}
-```markdown
-{{ grid(n_height=6) }}
-{{ grid('4mm', 20, 5, '0.2mm', '#03A4C0', 'center') }}
-```
-{% endraw %}
+{% raw %}{{ grid(n_height=6) }}{% endraw %}<br>{% raw %}{{ grid('4mm', 20, 5, '0.2mm', '#03A4C0', 'center') }}{% endraw %} {{ uuid('477b622b-4094-46a5-90ec-29fbb213bf11') }}
