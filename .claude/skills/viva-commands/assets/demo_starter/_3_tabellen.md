@@ -169,6 +169,73 @@ Auf `<td>` und `<th>` einer HTML-Tabelle legen `align` (`left`, `center`, `right
 ```
 {% endraw %}
 
+{{ page_break() }}
+
+## Auswahlliste mit gedrehter Kopfzeile
+
+Eine Zeile nur aus gedrehten Zellen braucht eine Höhe: `height` auf ihrem `<tr>` macht sie mindestens so hoch (in Word die Zeilenhöhe «Mindestens»), so hoch wie ihr längster Text; ohne sie lässt LibreOffice die Zeile im PDF weg. Eine Zeile einer Zelle, die mit `+ `, `- ` oder `* ` beginnt, wird ein Aufzählungspunkt; `\+` und `\-` lassen sie Text:
+
+{% call table('4.6cm', '0.9cm', '0.9cm', '0.9cm', '0.9cm', '0.9cm', '4.9cm', '2cm') %}
+<table>
+  <thead>
+    <tr>
+      <th colspan="8">Auswahlliste</th>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="middle">Variante</th>
+      <th colspan="6">Analyse und Beurteilung<p>\+ ja<p>\- nein<p>? fehlende Informationen<p>! Anforderungen abklären</th>
+      <th rowspan="3" vertical valign="bottom">Entscheidung</th>
+    </tr>
+    <tr height="2.3cm">
+      <th vertical valign="bottom">Kriterium 1</th>
+      <th vertical valign="bottom">Kriterium 2</th>
+      <th vertical valign="bottom">Kriterium 3</th>
+      <th vertical valign="bottom">Kriterium 4</th>
+      <th vertical valign="bottom">Kriterium 5</th>
+      <th rowspan="2" vertical valign="bottom">Bemerkungen</th>
+    </tr>
+    <tr height="4.8cm">
+      <th vertical valign="bottom">Sicheres Spannen</th>
+      <th vertical valign="bottom">Einfaches Einrichten</th>
+      <th vertical valign="bottom">Einfaches Bedienen</th>
+      <th vertical valign="bottom">Genauigkeit der Aufspannung</th>
+      <th vertical valign="bottom">Herstellkosten</th>
+    </tr>
+  </thead>
+  <tr>
+    <td>Variante 1<br>{{ image('images/bauteil.png', width='4.2cm') }}</td>
+    <td align="center" valign="middle">?</td>
+    <td align="center" valign="middle">+</td>
+    <td align="center" valign="middle">?</td>
+    <td align="center" valign="middle">+</td>
+    <td align="center" valign="middle">+</td>
+    <td valign="middle">Zeitintensive Spannung mit mehreren Werkzeugen<p>Gabelschlüssel, Innensechskantschlüssel</td>
+    <td align="center" valign="middle">{{ color('✗') }}</td>
+  </tr>
+  <tr>
+    <td>Variante 2<br>{{ image('images/bauteil.png', width='4.2cm') }}</td>
+    <td align="center" valign="middle">+</td>
+    <td align="center" valign="middle">+</td>
+    <td align="center" valign="middle">+</td>
+    <td align="center" valign="middle">!</td>
+    <td align="center" valign="middle">+</td>
+    <td valign="middle">Spannt schnell mit einem einzigen Werkzeug</td>
+    <td align="center" valign="middle">{{ color('✓', '#00B050') }}</td>
+  </tr>
+</table>
+{% endcall %}
+
+{% raw %}
+```markdown
+<tr height="4.8cm">
+  <th vertical valign="bottom">Sicheres Spannen</th>
+  <th vertical valign="bottom">Genauigkeit der Aufspannung</th>
+</tr>
+<th colspan="6">Analyse und Beurteilung<p>\+ ja<p>\- nein<p>? fehlende Informationen</th>
+<td align="center" valign="middle">{{ color('✗') }}</td>
+```
+{% endraw %}
+
 ## Bilder nebeneinander
 
 `type='pictures'` setzt Bilder ohne Linien nebeneinander, unter jedem seine Beschriftung; die Tabelle bleibt auf einer Seite und hat keine Tabellennummer.

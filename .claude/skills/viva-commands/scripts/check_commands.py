@@ -5,8 +5,8 @@ r"""Pre-check the Markdown files of a viva publisher document against the rules 
 
 Given a document folder (or any file in it) it finds the manifest `_main_.md`, follows its calls to the cover,
 imprint, management summary, chapters, glossar and sources files and checks them together: call syntax and
-arguments, where each command may stand, the files it names, and over the whole document the uuids, anchors,
-ref() targets and cite() keys. Without a manifest only the given files are checked (no cross-file checks).
+arguments, where each command may stand, the files it names, the tags and attributes of HTML tables, and over the
+whole document the uuids, anchors, ref() targets and cite() keys. Without a manifest only the given files are checked (no cross-file checks).
 
 A pre-check, not the render step: it does not run Jinja and does not convert LaTeX (it only checks braces and
 \begin/\end). Calibrated against the converter's md_render: `error` = the render step rejects it, `warning` = the
@@ -21,6 +21,7 @@ import sys
 import warnings
 from bisect import bisect_right
 from dataclasses import dataclass, field
+from html.parser import HTMLParser
 from pathlib import Path
 
 
@@ -101,6 +102,13 @@ LIST_ITEM_RE = re.compile(r'^\s*([-*+]|\d+[.)])\s')
 PLACEHOLDER_RE = re.compile(r'\(\(([^()\s]+\.[A-Za-z0-9]+)\)\)')
 MD_IMAGE_RE = re.compile(r'!\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)')
 CALLOUT_RE = re.compile(r'^\s*>\s*\[!([A-Za-z_]+)\]')
+# HTML tables as the converter reads them (md_to_docx/html_table.py): its tags, the values of a cell's look, a row's
+# height; a cell line it makes a list item besides the documented «- » and «1. »
+HTML_TAGS = {'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'strong', 'b', 'em', 'i', 'a', 'br', 'p'}
+CELL_LOOKS = {'vertical': ('up', 'down'), 'align': ('left', 'center', 'right'),
+              'valign': ('top', 'middle', 'center', 'bottom')}
+ROW_HEIGHT_RE = re.compile(r'^\d+(?:[.,]\d+)?\s*(?:cm|mm|pt)$')
+CELL_LIST_RE = re.compile(r'^([*+]|\d+\))\s')
 
 
 # --------------------------------------------------------------------------- reporting
@@ -246,8 +254,8 @@ class Doc:
         self.path, self.report = path, report
         self.text = text
         masked = text
-        for m in RAW_RE.finditer(text):
-            masked = blank(masked, m.start(), m.end())
+        for m in RAW_RE.finditer(text):   # literal text for the render step: text here (a uuid() after it is not alone)
+            masked = masked[:m.start()] + re.sub(r'[^\n]', 'x', text[m.start():m.end()]) + masked[m.end():]
         lines = masked.split('\n')
         fence = False
         self.fence_lines: set[int] = set()
@@ -454,6 +462,113 @@ class Doc:
                 c += spans[0]
             width = max(width, c, max((cc + 1 for rr, cc in occupied if rr == r), default=0))
         return width
+
+
+class HtmlTableScan(HTMLParser):
+    """The findings of one HTML table (its text with the calls masked: Doc.flat_lines) as (line from 1, level,
+    message): what the converter rejects (other tags, a table in a cell, text outside of a cell, a vertical, align or
+    valign of another value, a solution with a value, a height that is no length in cm, mm or pt) an error; a row of
+    only turned cells without a height (LibreOffice leaves it out of the PDF) and a cell line starting with «+ », «* »
+    or «1) » (a list item, which the author rarely means) a warning."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.found: list[tuple[int, str, str]] = []
+        self.depth = 0                    # of <table>: 1 inside the table, more inside a table in a cell
+        self.cell = False                 # inside a <td> or <th>
+        self.row: tuple[int, bool, list[bool]] | None = None   # its <tr>'s line, its height, per cell: turned
+        self.text: list[str] = []         # the current line of the cell's text
+        self.styled = 0                   # the open <strong>, <b>, <em>, <i> of the cell
+        self.line_styled = False          # the current line's text starts inside one of them (**+ ja**: no item)
+
+    def add(self, level: str, message: str, line: int | None = None) -> None:
+        self.found.append((line or self.getpos()[0], level, message))
+
+    def handle_starttag(self, tag, attrs):
+        if self.depth > 1:
+            self.depth += tag == 'table'
+            return
+        a = dict(attrs)
+        if tag == 'table':
+            if self.depth:
+                self.add('error', 'a table inside a table cell is not possible')
+            self.depth += 1
+        elif tag in ('thead', 'tbody', 'tfoot'):
+            self.end_row()
+        elif tag == 'tr':
+            self.end_row()
+            if 'height' in a and not ROW_HEIGHT_RE.match((a['height'] or '').strip().lower()):
+                self.add('error', f'`height="{a["height"] or ""}"` of a `<tr>` is not possible: a length in cm, mm or '
+                                  f'pt (e.g. `height="4cm"`)')
+            self.row = (self.getpos()[0], 'height' in a, [])
+        elif tag in ('td', 'th'):
+            self.end_cell()
+            self.row = self.row or (self.getpos()[0], False, [])
+            self.cell, self.text, self.styled = True, [], 0
+            for name, values in CELL_LOOKS.items():
+                value = (a[name] or ('up' if name == 'vertical' else '')).strip().lower() if name in a else None
+                if value is not None and value not in values:
+                    self.add('error', f'`{name}="{a[name] or ""}"` is not possible: '
+                                      f'{", ".join(f"`{v}`" for v in values)}')
+            if a.get('solution'):
+                self.add('error', f'`solution="{a["solution"]}"` is not possible: `solution` takes no value')
+            self.row[2].append('vertical' in a)
+        elif not self.cell:
+            self.add('error', f'`<{tag}>` is not possible outside of a cell')
+        elif tag in ('br', 'p'):
+            self.end_line()
+        elif tag in ('strong', 'b', 'em', 'i'):
+            self.styled += 1
+        elif tag not in HTML_TAGS:
+            self.add('error', f'`<{tag}>` is not possible in an HTML table (tags: {", ".join(sorted(HTML_TAGS))})')
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+
+    def handle_endtag(self, tag):
+        if self.depth > 1:
+            self.depth -= tag == 'table'
+        elif tag in ('table', 'tr', 'thead', 'tbody', 'tfoot'):
+            self.end_row()
+        elif tag in ('td', 'th'):
+            self.end_cell()
+        elif tag in ('strong', 'b', 'em', 'i'):
+            self.styled = max(0, self.styled - 1)
+
+    def handle_data(self, data):
+        if self.depth > 1:
+            return
+        if not self.cell:
+            if data.strip():
+                self.add('error', f'text outside of a cell: {data.strip()[:40]}',
+                         self.getpos()[0] + data[:len(data) - len(data.lstrip())].count('\n'))
+            return
+        if data.strip() and not ''.join(self.text).strip():
+            self.line_styled = self.styled > 0
+        self.text.append(data)
+
+    def end_line(self):
+        text = ' '.join(''.join(self.text).split())
+        if text and not self.line_styled and (m := CELL_LIST_RE.match(text)):
+            escaped = '\\' + text if m.group(1) in '*+' else re.sub(r'\)', r'\\)', text, count=1)
+            self.add('warning', f'cell line `{text[:30]}` becomes a list item; for text escape it: `{escaped[:31]}`')
+        self.text, self.line_styled = [], False
+
+    def end_cell(self):
+        if self.cell:
+            self.end_line()
+        self.cell, self.styled = False, 0
+
+    def end_row(self):
+        self.end_cell()
+        if self.row and self.row[2] and all(self.row[2]) and not self.row[1]:
+            self.add('warning', 'a row of only turned cells needs `height` on its `<tr>`, as high as its longest '
+                                'turned text: without one LibreOffice leaves the row out of the PDF', self.row[0])
+        self.row = None
+
+    def close(self):
+        super().close()
+        self.end_row()
 
 
 # --------------------------------------------------------------------------- value checks
@@ -675,6 +790,8 @@ class Checker:
         for i, ln in enumerate(doc.lines):
             if ln.lstrip().startswith('<table') and i not in doc.fence_lines and i not in self.table_ctx:
                 doc.table_at(i)   # checks colspan/rowspan of a table without table()
+            if ln.lstrip().startswith('<table') and i not in doc.fence_lines:
+                self.check_html_table(doc, i)
         for i, ln in enumerate(doc.lines):
             if i in doc.fence_lines:
                 continue
@@ -696,6 +813,18 @@ class Checker:
                 src = ln[m.start(1):m.end(1)]
                 if not re.match(r'^[a-z]+://', src) and not (doc.path.parent / src).is_file():
                     self.r.error(doc.path, i + 1, f'picture `{src}` does not exist')
+
+    def check_html_table(self, doc: Doc, start: int):
+        """The tags and attributes of the HTML table starting at line start (HtmlTableScan); up to the first line with
+        </table>, as the converter takes it (none: Doc._html_regions reports it)."""
+        end = next((j for j in range(start, len(doc.lines)) if '</table>' in doc.lines[j]), None)
+        if end is None:
+            return
+        scan = HtmlTableScan()
+        scan.feed('\n'.join(doc.flat_lines[start:end + 1]))
+        scan.close()
+        for line, level, message in scan.found:
+            {'error': self.r.error, 'warning': self.r.warn}[level](doc.path, start + line, message)
 
     def check_glossar(self, doc: Doc):
         for i, ln in self.data_lines(doc):

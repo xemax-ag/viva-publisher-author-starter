@@ -49,7 +49,7 @@ may edit.
    | `cover.md`, `impressum.md`, `management_summary.md`, `glossar.md`, `quellen.md` | the formats of these files |
    | `_1_text_und_struktur.md` | headings + `anchor()`, bold/italic, `color()`, `<br>`, escapes, lists, `{% call list() %}`, `link()`, `ref()`, `footnote()`, `cite()`, `index()`, `uuid()`, comments, code blocks, `page_break()` |
    | `_2_bilder.md` | `image()` with every option, Markdown picture, placeholder `((…))`, `qr_code()`, `grid()` |
-   | `_3_tabellen.md` | pipe and HTML tables, `Tabelle:` captions, `table()` widths/anchor/`numbered`, colspan/rowspan, `type='pictures'`, `type='layout'`, `content()` |
+   | `_3_tabellen.md` | pipe and HTML tables, `Tabelle:` captions, `table()` widths/anchor/`numbered`, colspan/rowspan, turned cells, row `height`, `type='pictures'`, `type='layout'`, `content()` |
    | `_4_formeln.md` | `formula()` inline, on its own line, `align`, LaTeX examples |
    | `_5_didaktik.md` | `label()` + icons, `learning_objectives()` + `link_lo()`, `note()`, `frame()`, boxes `> [!AUFGABE]` etc., Selbstkontrolle |
 
@@ -69,10 +69,12 @@ may edit.
    python3 <skill>/scripts/check_commands.py <document folder | any file in it>
    ```
    It finds `_main_.md` and checks the whole document together: call syntax and arguments, where each command may
-   stand, the files it names, table widths against columns, uuids, anchors, `ref()` targets and `cite()` keys. It
-   was calibrated against the real render step. `error` means the render step rejects it. `warning` means the render
-   step accepts it, but the result is probably not what was meant (e.g. a `Tabelle:` line that is not directly
-   above its table loses its caption number). `info` lists placeholders for pictures that are still missing.
+   stand, the files it names, table widths against columns, the tags and attributes of HTML tables, uuids, anchors,
+   `ref()` targets and `cite()` keys. It was calibrated against the real render step. `error` means the render step
+   rejects it. `warning` means the render step accepts it, but the result is probably not what was meant (e.g. a
+   `Tabelle:` line that is not directly above its table loses its caption number, a row of only turned cells without
+   `height` is missing in the PDF, a cell line `+ ja` becomes a list item). `info` lists placeholders for pictures
+   that are still missing.
    Unlike the render step, which stops at the first Jinja syntax error, the checker lists every problem in one
    pass, so fix them all and then run it again.
 4. **Confirm with the real render step** if the converter is available, because it also checks the LaTeX of
@@ -107,6 +109,8 @@ escapes (`3\. Schritt`, `\# kein Titel`, `2\*3`). For everything else:
 | table + «Tabelle 2: Werte» | `Tabelle: Werte` directly above the table (no blank line), `{{ table(…widths…) }}` or `{% call table(…) %}` around it |
 | merged cells, multi-line cells, `\|` in a cell | an HTML `<table>` (pipe tables cannot do these) |
 | a solution in a table cell (red), an aligned or turned cell | on a `<td>`/`<th>` of an HTML table: `solution` without a value (`<td solution>X</td>`: the cell's text in the style Solutions, red by the template), `align="center"`/`"right"`, `valign="middle"`/`"bottom"`, `vertical="up"`/`"down"` |
+| a header row of only turned cells (criteria written upwards) | `<tr height="4cm">`, as high as its longest turned text: without a height LibreOffice leaves such a row out of the PDF |
+| a cell line starting with `+ `, `- `, `* ` or `1. ` that is no list item (`+ ja`, `- nein`) | escape its first character: `\+ ja`, `\- nein` (else the line becomes a bullet or numbered item) |
 | pictures side by side / text beside a picture | `{% call table(…, type='pictures') %}` / `type='layout'` |
 | formula (`$…$`, Word equation) | `{{ formula('U = R \cdot I') }}`: inline in the sentence, or on its own line for a display formula. `$…$` stays text. |
 | footnote `[^1]` | `{{ footnote('Text') }}` right after the word, no space before it |
@@ -144,7 +148,10 @@ These are the mistakes the render step most often rejects. The full lists are in
   lines. A `table` call holds only the `Tabelle:` line and the table. `list()` and `content()` exist only as calls.
 - **Tables.** Give one width per column, either `cm`/`mm`/`pt`/`%` or `*` (the `*` columns share the rest). The
   fixed widths add up to at most the 16 cm text column. `anchor=` and `numbered=False` need the `Tabelle:` line.
-  Tables with `type='pictures'` or `type='layout'` have no `Tabelle:` line.
+  Tables with `type='pictures'` or `type='layout'` have no `Tabelle:` line. An HTML table takes only the tags of
+  COMMANDS.md (no `<u>`, no table in a cell, no text outside a cell); on a cell `vertical` is `up`/`down`, `align`
+  `left`/`center`/`right`, `valign` `top`/`middle`/`bottom`, `solution` has no value; `height` on a `<tr>` is a
+  length in `cm`/`mm`/`pt`.
 - **Pictures.** Paths are relative to the calling file (a leading `/` means relative to the manifest folder) and
   the file must exist. `scale` cannot be combined with `width`/`height`. `numbered`/`anchor` only work with
   `title`. In a table cell, `wrap`/`title` are not allowed, except `title` inside `type='layout'`.

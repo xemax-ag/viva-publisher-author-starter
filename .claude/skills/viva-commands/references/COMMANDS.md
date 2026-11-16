@@ -80,7 +80,8 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
   `border` and `crop` of `image()` (`height` and `scale` come back as its `width`; a turned picture comes back
   turned, without `rotate`); `numbered=False` of `table()`; the
   widths of `learning_objectives()`; `unnumbered` of `list_of_illustrations()` and `list_of_tables()`; another
-  `title` of `bibliography()`; `size`, `color` and `alignment` of `qr_code()`.
+  `title` of `bibliography()`; `size`, `color` and `alignment` of `qr_code()`. A row's `height` (HTML table) comes back
+  from 1 cm; a lower row height of Word it leaves out (about one line of text, which the row has anyway).
 - **The InDesign import** (`viva_publisher_converter/docx_to_md_from_indesign`,
   `validations/docx_to_md_from_indesign/docx_to_md_from_indesign_v.py`): a Word document of an InDesign book
   (InDesign → PDF → Word), e.g. Antriebstechnik. It writes what it recognises — the labels and notes of a Hinweis, a
@@ -497,6 +498,37 @@ the defaults; the alignment of a cell's paragraphs only if all of them with text
 </table>
 ```
 
+`height` on a `<tr>`: the row at least that high, a length in cm, mm or pt (`<tr height="4cm">`; decimal comma
+allowed) — higher if its text needs more; in Word the row height «At least» (Table Properties › Row). A row of only
+turned cells needs it: LibreOffice gives such a row no height of its own, its cells are missing in the PDF. Make it as
+high as its longest turned text, else LibreOffice wraps that text and cuts it off. The template import writes it for a
+row Word gives a height of at least 1 cm («At least» or «Exactly»). E.g. a head with the criteria turned:
+
+```markdown
+{{ table('4cm', '1cm', '1cm', '1cm', '*') }}
+<table>
+  <thead>
+    <tr>
+      <td rowspan="2" valign="middle">Variante</td>
+      <td colspan="3">Kriterien</td>
+      <td rowspan="2" valign="bottom">Bemerkungen</td>
+    </tr>
+    <tr height="4cm">
+      <td vertical valign="bottom">Sicheres Spannen</td>
+      <td vertical valign="bottom">Einfaches Einrichten</td>
+      <td vertical valign="bottom">Herstellkosten</td>
+    </tr>
+  </thead>
+  <tr>
+    <td>Variante 1</td>
+    <td align="center">+</td>
+    <td align="center">?</td>
+    <td align="center">+</td>
+    <td>Spannt schnell</td>
+  </tr>
+</table>
+```
+
 `solution` (without a value) on a `<td>` or `<th>`: the cell is a solution — its paragraphs in the style Solutions,
 red by the template, like the text of a `> [!LOESUNG]` box (a list item in the cell keeps its list's style). Bold,
 italic and `color()` work inside it (`color()` instead of the red). It goes with `align`, `valign`, `vertical`,
@@ -515,8 +547,8 @@ with text are all in the style Solutions (a cell with other text too: plain text
 Other tags, a `rowspan` or `colspan` that is no whole number from 1, a `rowspan` that goes beyond the header rows or
 the last row, a `colspan` that runs into a column of a `rowspan` cell above (the converter shortens them), a
 `vertical` other than `up` or `down`, an `align` other than `left`, `center` or `right`, a `valign` other than `top`,
-`middle` (`center`) or `bottom`, a `solution` with a value, a table inside a cell, text outside of a cell and a missing
-`</table>` are problems.
+`middle` (`center`) or `bottom`, a `solution` with a value, a `height` that is no length in cm, mm or pt, a table
+inside a cell, text outside of a cell and a missing `</table>` are problems.
 
 `type`: the kind of table, `'default'` (the default: a table as above) or `'pictures'`: the table as pictures side by
 side, e.g. `{% call table('8.2cm', '7.8cm', type='pictures') %}` (the
