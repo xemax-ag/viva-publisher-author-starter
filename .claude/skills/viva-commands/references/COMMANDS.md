@@ -92,7 +92,7 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
 
 | Command | Where | Arguments (positional first) | What it writes |
 | --- | --- | --- | --- |
-| [`document`](#document) | manifest | `title`, `state='production'` | the document title and its state (`'development'`: a `ref()` without target does not stop the build) |
+| [`document`](#document) | manifest | `title`, `state='production'`, `type='theory'` | the document title, its state (`'development'`: a reference without target does not stop the build) and its type |
 | [`logo`](#logo) | manifest | `name` | the logos of the colour bands and the page headers |
 | [`watermark`](#watermark) | manifest | `text`, `color='#C0C0C0'` | a text watermark on every page, e.g. «ENTWURF» |
 | [`cover`](#cover) | manifest | `src='cover.md'`, `image=None` | the title page |
@@ -132,17 +132,26 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
 
 ### document
 
-`{{ document('Antriebstechnik') }}`, `{{ document('Antriebstechnik', state='development') }}` — the document title
-(header field TITLE), also the title of the cover if the cover does not set one, and the document's state. `title`
-must not be empty. `state`:
+`{{ document('Antriebstechnik') }}`, `{{ document('Antriebstechnik', state='development', type='exercise') }}` — the
+document title (header field TITLE), also the title of the cover if the cover does not set one, the document's state
+and its type. `title` must not be empty. `type`, what kind of document it is: `'theory'` (default, a textbook),
+`'exercise'`, `'exam_assignment'` or `'report'`; the converter does not use it yet. `state`:
 
-- `'production'` (default): the document is finished. A `ref()` whose target is not in the document is a problem: the
+- `'production'` (default): the document is finished. A reference without its target (table below) is a problem: the
   build stops, no Word document is made.
-- `'development'`: the document is being written. To save time, chapters (and the lists, the glossar …) can be
-  commented out in the manifest, e.g. `{# {{ chapter('_5_didaktik.md') }} #}` (its [`subchapter()`](#subchapter)
-  calls are left out with it), so that only the chapter being edited is built. A `ref()` whose target is no longer part of the document is still reported, «… ref(): no anchor
-  'didaktik' in the document (development: built with ??)», but the build goes on and the Word document shows `??` in
-  its place. Every other problem still stops the build.
+- `'development'`: the document is being written. To save time, chapters, the lists, the Glossar, the
+  bibliography and the Stichwortverzeichnis can be commented out in the manifest, e.g.
+  `{# {{ chapter('_5_didaktik.md') }} #}` (its [`subchapter()`](#subchapter) calls are left out with it), so that only
+  the chapter being edited is built. A reference without its target is still reported, with what the Word document
+  shows instead, e.g. «… ref(): no anchor 'didaktik' in the document (development: built with ??)», but the build goes
+  on. Every other problem still stops the build, a broken line of the sources file too.
+
+| Reference | Its target missing | In development |
+| --- | --- | --- |
+| [`ref()`](#ref) | its `anchor()` or `anchor=` (e.g. in a chapter commented out) | `??` in its place (`built with ??`) |
+| [`cite()`](#cite) | [`bibliography()`](#bibliography) in the manifest, or the key's entry in its sources file | `[?]` in its place (`built with [?]`) |
+| [`index()`](#index) | [`keyword_index()`](#keyword_index) in the manifest | no Stichwortverzeichnis (`built without Stichwortverzeichnis`) |
+| the terms of the Glossar | [`glossar()`](#glossar), commented out in the manifest | no Glossar, the terms not linked (`built without Glossar`) |
 
 At most once. The Word imports write `state='production'`. It replaces the former `title(text)`: a call of `title()`
 is a problem.
@@ -266,6 +275,8 @@ from the table captions (the `Tabelle: Titel` line before a table): numbered «T
 `Begriff: Definition` per line; headings and `<!-- comments -->` in the file are ignored. The entries are sorted
 alphabetically (umlauts like their base letter), the term in bold. In the chapters' body text, the first occurrence of
 a term per chapter becomes a link to its entry (as a whole word, also with a German ending: Lernziel → Lernziele).
+A `glossar()` commented out in the manifest is a problem, as its terms are not linked (in a document in development
+only reported, see [`document()`](#document)).
 
 ### bibliography
 
@@ -286,7 +297,8 @@ document is written, so `bibliography()` may also stand before the chapters. Onc
 ### keyword_index
 
 `{{ keyword_index() }}` — the Stichwortverzeichnis (two columns) on a new page, from the `index()` entries of the
-chapters.
+chapters. A document with `index()` entries needs it: without it each `index()` is a problem (in a document in
+development only reported, see [`document()`](#document)).
 
 ## Manifest and chapter
 
@@ -328,7 +340,7 @@ with its figure on one page. Use it sparingly: the styles do the layout.
 
 `Der {{ index('Motor') }}Motor dreht.`, `{{ index('Motor', 'Stellmotor') }}` — an entry (`entry`) or a subentry
 (`sub`) of the Stichwortverzeichnis at this place in the text. Inline only, not on a line of its own; neither may be
-empty or contain `"` or `:`.
+empty or contain `"` or `:`. Its manifest needs [`keyword_index()`](#keyword_index).
 
 ### link
 
@@ -385,7 +397,8 @@ the page or pages as text, e.g. `'23'` or `'23–25'`), a link to its entry (cli
 numbers count in the order of the first citation of each entry; the converter sets them when the whole document is
 written. Two sources: two calls, `{{ cite('erdmann2023', '23') }} {{ cite('meier1999') }}`. A key without entry in the
 sources file, or a `cite()` without `bibliography()` in the manifest, is a problem (the render step checks it after
-all files).
+all files); in a document in development ([`document(state='development')`](#document)) it is only reported and the
+converter writes `[?]`.
 
 ### formula
 

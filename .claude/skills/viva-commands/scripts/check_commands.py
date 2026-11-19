@@ -42,7 +42,7 @@ IMAGE_PARAMS = ('src', 'width', 'height', 'scale', 'align', 'border', 'crop', 'w
                 'anchor', 'alt_text', 'rotate')
 
 SPECS: dict[str, Spec] = {
-    'document': Spec(('title', 'state'), ('title',), where='manifest'),
+    'document': Spec(('title', 'state', 'type'), ('title',), where='manifest'),
     'logo': Spec(('name',), ('name',), where='manifest'),
     'watermark': Spec(('text', 'color'), ('text',), where='manifest'),
     'cover': Spec(('src', 'image'), where='manifest'),
@@ -81,7 +81,10 @@ SPECS: dict[str, Spec] = {
 ONCE = {'document', 'logo', 'watermark', 'bibliography'}
 RENAMED = {'title': "document('…')"}   # a former command: its new call
 STATES = ('development', 'production')   # document(state=…)
+TYPES = ('theory', 'exercise', 'exam_assignment', 'report')   # document(type=…)
 CHAPTER_CALL = re.compile(r'(?<!\w)chapter\s*\(')   # a chapter( call, not subchapter(
+GLOSSAR_CALL = re.compile(r'(?<!\w)glossar\s*\(')
+JINJA_COMMENT = re.compile(r'\{#.*?#\}', re.S)
 BLOCK_CALLS = {'image', 'page_break', 'table', 'learning_objectives', 'qr_code', 'grid', 'label', 'note',
                'frame', 'list'}
 ICONS = {'learning_objective', 'bell', 'magnifying_glass', 'arrow_right', 'summary'}  # reference/template/icons/
@@ -598,7 +601,9 @@ class Checker:
         self.once: dict[str, tuple[Path, int]] = {}
         self.manifest: Path | None = None
         self.bibliography: Path | None = None
-        self.state = 'production'   # document(state=…): in development a ref() without target only warns
+        self.state = 'production'   # document(state=…): in development a reference without target only warns
+        self.indexes: list[tuple[Path, int]] = []   # each index() of a chapter: its file and line
+        self.glossar_comment: int | None = None     # the manifest line of a glossar() commented out
         self.table_ctx: dict[int, Call] = {}   # line of a table row -> its table()/learning_objectives() call
         self.table_caption: dict[int, bool] = {}
 
@@ -708,6 +713,9 @@ class Checker:
         if doc is None:
             return
         self.check_manifest(doc)
+        for comment in JINJA_COMMENT.finditer(doc.text):   # a glossar() commented out: its terms are not linked
+            if (m := GLOSSAR_CALL.search(comment[0])) and self.glossar_comment is None:
+                self.glossar_comment = doc.text.count('\n', 0, comment.start() + m.start()) + 1
         seen = {self.manifest}
         previous, chapter = None, None   # the manifest's call before; the file of the chapter of a subchapter()
         for c in doc.calls:
@@ -922,6 +930,7 @@ class Checker:
     def c_document(self, doc, c):
         self.text_arg(doc, c, 'title')
         self.choice_arg(doc, c, 'state', STATES)
+        self.choice_arg(doc, c, 'type', TYPES)
         if c.args.get('state') in STATES:
             self.state = c.args['state']
 
@@ -1119,6 +1128,7 @@ class Checker:
 
     # ---- inline
     def c_index(self, doc, c):
+        self.indexes.append((doc.path, c.line + 1))
         if c.alone:
             self.r.warn(doc.path, c.line + 1, '`index()` belongs inline, directly before its word (`Der {{ index(\'Motor\') '
                                               '}}Motor …`), not on a line of its own (COMMANDS.md: inline only)')
@@ -1195,20 +1205,34 @@ class Checker:
 
     # ---- after all files
     def resolve(self, cross_file: bool):
-        report = self.r.error if cross_file and self.state == 'production' else self.r.warn
+        """The references without target: errors, but in development (document(state='development')) warnings
+        that say what the converter writes instead."""
+        development = self.state == 'development'
+        report = self.r.error if cross_file and not development else self.r.warn
+
+        def instead(text):
+            return f' (development: {text})' if development else ''
+
         for name, p, ln in self.refs:
             if name not in self.anchors:
-                report(p, ln, f'`ref({name!r})`: no heading, figure or table has this anchor'
-                       + (' (development: built with ??)' if self.state == 'development' else ''))
+                report(p, ln, f'`ref({name!r})`: no heading, figure or table has this anchor' + instead('built with ??'))
         if self.cites:
             if cross_file and self.bibliography is None:
                 p, ln = self.cites[0][1:]
-                self.r.error(p, ln, '`cite()` without `bibliography()` in the manifest')
+                report(p, ln, '`cite()` without `bibliography()` in the manifest' + instead('built with [?]'))
             keys = getattr(self, 'source_keys', None)
             if keys is not None:
                 for key, p, ln in self.cites:
                     if key not in keys:
-                        self.r.error(p, ln, f'`cite({key!r})`: no entry with this key in {rel(self.bibliography)}')
+                        report(p, ln, f'`cite({key!r})`: no entry with this key in {rel(self.bibliography)}'
+                               + instead('built with [?]'))
+        if cross_file and self.indexes and 'keyword_index' not in self.once:
+            p, ln = self.indexes[0]
+            report(p, ln, '`index()` without `keyword_index()` in the manifest'
+                   + instead('built without Stichwortverzeichnis'))
+        if cross_file and self.glossar_comment is not None and 'glossar' not in self.once:
+            report(self.manifest, self.glossar_comment, '`glossar()` commented out: the terms in the text are not '
+                                                        'linked to the Glossar' + instead('built without Glossar'))
 
 
 # --------------------------------------------------------------------------- main

@@ -1,8 +1,10 @@
 {# Demo Starter: das Manifest. Jede Zeile ein Eintrag des Dokuments, in dieser Reihenfolge; ausser den Aufrufen nur
    Kommentare wie dieser (die das Rendern entfernt). Dateien relativ zu diesem Ordner. #}
-{# state='development', solange das Dokument entsteht: Kapitel lassen sich auskommentieren, ein Verweis in sie
-   wird nur gemeldet (?? im Dokument); state='production' (die Vorgabe): ein Verweis ohne Ziel bricht ab #}
-{{ document('Demo Starter', state='production') }}
+{# state='development', solange das Dokument entsteht: Kapitel, Teile, Glossar, Quellen und Stichwortverzeichnis
+   lassen sich auskommentieren, ein Verweis auf sie wird nur gemeldet (?? bzw. [?] im Dokument);
+   state='production' (die Vorgabe): ein Verweis ohne Ziel bricht ab; type: 'theory' (die Vorgabe), 'exercise',
+   'exam_assignment' oder 'report' #}
+{{ document('Demo Starter', state='production', type='theory') }}
 {# ein eigenes Logo aus reference/template/logos/misc/, z. B. logo('nextecmedia'); ohne logo() bleiben die Logos der Vorlage #}
 {{ watermark('MUSTER') }}
 {{ cover('cover.md', image='images/cover.svg') }}

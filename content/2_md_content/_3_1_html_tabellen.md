@@ -4,7 +4,7 @@ Ab hier steht dieses Kapitel in eigenen Dateien, \_3\_1\_html\_tabellen.md und \
 
 {% raw %}{{ document('Demo Starter', state='development') }}{% endraw %}<br>…<br>{% raw %}{{ chapter('_3_0_tabellen.md', image='images/3_tabellen/chapter_image.png') }}{% endraw %}<br>{% raw %}{{ subchapter('_3_1_html_tabellen.md') }}{% endraw %}<br>{% raw %}{# {{ subchapter('_3_2_bilder_in_tabellen.md') }} #}{% endraw %}
 
-Solange das Dokument entsteht, steht im Manifest document(…, state='development'). Dann lassen sich Kapitel und ihre Teile auskommentieren wie oben, und erstellt wird nur, woran man gerade arbeitet; ein auskommentiertes Kapitel nimmt seine Teile mit. Verweise auf Ausgelassenes meldet das Rendern, das Dokument entsteht trotzdem, mit ?? an ihrer Stelle. Das fertige Dokument hat state='production', die Vorgabe: Dann bricht jeder Verweis ohne Ziel das Erstellen ab.
+Solange das Dokument entsteht, steht im Manifest document(…, state='development'). Dann lassen sich Kapitel und ihre Teile auskommentieren wie oben, ebenso Glossar, Quellenverzeichnis und Stichwortverzeichnis, und erstellt wird nur, woran man gerade arbeitet; ein auskommentiertes Kapitel nimmt seine Teile mit. Verweise auf Ausgelassenes meldet das Rendern, das Dokument entsteht trotzdem: Ein ref() ohne seinen Anker zeigt ??, ein cite() ohne bibliography() oder ohne Eintrag [?]; ohne keyword_index() fehlt das Stichwortverzeichnis, und ist glossar() auskommentiert, das Glossar mit den Verweisen auf seine Begriffe. Das fertige Dokument hat state='production', die Vorgabe: Dann bricht jeder dieser Verweise ohne Ziel das Erstellen ab.
 
 ## HTML-Tabelle mit verbundenen Zellen {{ uuid('a5e89261-7d62-491c-89de-217258dcb059') }}
 

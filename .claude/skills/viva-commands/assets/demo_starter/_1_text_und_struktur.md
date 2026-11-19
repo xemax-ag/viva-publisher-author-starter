@@ -117,9 +117,9 @@ und steht auf Seite {{ ref('ueberschriften', 'page') }}.
 
 Eine Fussnote{{ footnote('Der Text einer Fussnote steht unten auf der Seite; er darf **fett**, *kursiv* oder ein [Link](https://commonmark.org) sein.') }} setzt ihre Nummer an die Stelle im Text. Die Nummern beginnen in jedem Kapitel bei 1{{ footnote('Die zweite Fussnote dieses Kapitels.') }}.
 
-Quellen zitieren Sie mit `cite()`: Die Syntax von Markdown ist in der CommonMark-Spezifikation festgelegt {{ cite('commonmark') }}, die Formeln folgen der Schreibweise von LaTeX {{ cite('lamport1994', '23–25') }}. Die Nummern zählen in der Reihenfolge der ersten Zitate; das Quellenverzeichnis am Ende listet nur die zitierten Einträge.
+Quellen zitieren Sie mit `cite()`: Die Syntax von Markdown ist in der CommonMark-Spezifikation festgelegt {{ cite('commonmark') }}, die Formeln folgen der Schreibweise von LaTeX {{ cite('lamport1994', '23–25') }}. Die Nummern zählen in der Reihenfolge der ersten Zitate; das Quellenverzeichnis am Ende listet nur die zitierten Einträge. Fehlt `bibliography()` im Manifest oder ein Eintrag in `quellen.md`, bricht das Erstellen ab; im Zustand `development` meldet das Rendern es nur, und an der Stelle steht [?].
 
-Ein {{ index('Stichwort') }}Stichwort für das Stichwortverzeichnis setzen Sie mit `index()` direkt vor das Wort, ein Unterstichwort mit einem zweiten Argument: die {{ index('Fussnote', 'Nummerierung') }}Nummerierung der Fussnoten, der {{ index('Verweis', 'auf Abschnitte') }}Verweis auf einen Abschnitt.
+Ein {{ index('Stichwort') }}Stichwort für das Stichwortverzeichnis setzen Sie mit `index()` direkt vor das Wort, ein Unterstichwort mit einem zweiten Argument: die {{ index('Fussnote', 'Nummerierung') }}Nummerierung der Fussnoten, der {{ index('Verweis', 'auf Abschnitte') }}Verweis auf einen Abschnitt. Das Manifest braucht dazu `keyword_index()`: Fehlt es, bricht das Erstellen ab; im Zustand `development` meldet das Rendern es nur, und das Stichwortverzeichnis fehlt.
 
 {% raw %}
 ```markdown

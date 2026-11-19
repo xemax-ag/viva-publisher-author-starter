@@ -1,4 +1,4 @@
-{{ document('Demo Starter', state='development', uuid='6a0bdadf-b8cc-46b6-a83c-802994a30ae1') }}
+{{ document('Demo Starter', state='development', type='theory', uuid='6a0bdadf-b8cc-46b6-a83c-802994a30ae1') }}
 {{ watermark('MUSTER', uuid='60a90200-989b-4877-8337-701ec4f23803') }}
 {{ cover('cover.md', image='images/cover/titelbild.png', uuid='56a9c202-3ef2-47bb-960d-53684f5321ca') }}
 {{ imprint(uuid='e2d55aaa-18cd-44ea-9bda-7170b797b42e') }}

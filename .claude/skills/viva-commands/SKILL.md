@@ -1,6 +1,6 @@
 ---
 name: viva-commands
-description: Format, write, convert and check the Markdown content of a viva publisher document (textbook template textbook_2026_V02 → Word → PDF) with the render-step commands of COMMANDS.md — {{ image() }}, {{ table() }}, {{ formula() }}, {{ ref() }}/{{ anchor() }}, {{ cite() }}, {{ footnote() }}, {{ index() }}, {{ label() }}, {{ note() }}, {{ frame() }}, {{ learning_objectives() }}, {{ uuid() }} and the manifest _main_.md with {{ document() }} (title, state development/production) and {{ subchapter() }} (a large chapter split into several files). Use this skill whenever the user wants to create or edit a manifest, chapter, cover, impressum, management summary, glossar or quellen file (e.g. under 2_md_content/), turn plain Markdown, Word-exported or pasted text into this format, add pictures, tables, formulas, learning objectives, Hinweis/Beispiel/Aufgabe boxes or cross references, or find and fix render-step problems — even if they don't mention COMMANDS.md or "commands".
+description: Format, write, convert and check the Markdown content of a viva publisher document (textbook template textbook_2026_V02 → Word → PDF) with the render-step commands of COMMANDS.md — {{ image() }}, {{ table() }}, {{ formula() }}, {{ ref() }}/{{ anchor() }}, {{ cite() }}, {{ footnote() }}, {{ index() }}, {{ label() }}, {{ note() }}, {{ frame() }}, {{ learning_objectives() }}, {{ uuid() }} and the manifest _main_.md with {{ document() }} (title, state development/production, type theory/exercise/exam_assignment/report) and {{ subchapter() }} (a large chapter split into several files). Use this skill whenever the user wants to create or edit a manifest, chapter, cover, impressum, management summary, glossar or quellen file (e.g. under 2_md_content/), turn plain Markdown, Word-exported or pasted text into this format, add pictures, tables, formulas, learning objectives, Hinweis/Beispiel/Aufgabe boxes or cross references, or find and fix render-step problems — even if they don't mention COMMANDS.md or "commands".
 ---
 
 # viva-commands: Markdown for the viva publisher converter
@@ -45,7 +45,7 @@ may edit.
 
    | Demo file | Shows |
    | --- | --- |
-   | `_main_.md` | manifest: document (title, state), watermark, cover with picture, imprint, management summary, TOC, chapters with opener pictures, a chapter with two subchapters, lists of figures/tables, glossar, bibliography, keyword index |
+   | `_main_.md` | manifest: document (title, state, type), watermark, cover with picture, imprint, management summary, TOC, chapters with opener pictures, a chapter with two subchapters, lists of figures/tables, glossar, bibliography, keyword index |
    | `cover.md`, `impressum.md`, `management_summary.md`, `glossar.md`, `quellen.md` | the formats of these files |
    | `_1_text_und_struktur.md` | headings + `anchor()`, bold/italic, `color()`, `<br>`, escapes, lists, `{% call list() %}`, `link()`, `ref()`, `footnote()`, `cite()`, `index()`, `uuid()`, comments, code blocks, `page_break()` |
    | `_2_bilder.md` | `image()` with every option, Markdown picture, placeholder `((…))`, `qr_code()`, `grid()` |
@@ -118,7 +118,7 @@ escapes (`3\. Schritt`, `\# kein Titel`, `2\*3`). For everything else:
 | formula (`$…$`, Word equation) | `{{ formula('U = R \cdot I') }}`: inline in the sentence, or on its own line for a display formula. `$…$` stays text. |
 | footnote `[^1]` | `{{ footnote('Text') }}` right after the word, no space before it |
 | literature reference «[1]», «(Meier 1999, S. 23)» | `{{ cite('meier1999', '23') }}` + `meier1999: …` line in the sources file + `bibliography()` in the manifest |
-| keyword for the index | `{{ index('Motor') }}Motor` directly before its word, inline only |
+| keyword for the index | `{{ index('Motor') }}Motor` directly before its word, inline only + `keyword_index()` in the manifest |
 | learning objectives | `{{ label('Lernziele', icon='learning_objective') }}`, blank line, `{% call learning_objectives() %}` with rows `\| LZ_0101 \| Sie erklären … \|` |
 | «Hinweis» box | `{{ label('Hinweis', icon='bell', offset_x='4mm', offset_y='50%') }}`, blank line, `{{ note() }}` directly above the paragraph/list, or `{% call note() %}` … `{% endcall %}` for several blocks |
 | «Hinweis» label above a normal paragraph (no box) | `{{ label('Hinweis', icon='bell', offset_x='4mm') }}`, blank line, the paragraph. No `offset_y`: it reaches into a `note()` box and is a problem without one. |
@@ -170,9 +170,12 @@ These are the mistakes the render step most often rejects. The full lists are in
 - **Manifest.** It holds only calls, one per line, plus `{# … #}` comments. `document()`, `logo()`, `watermark()`
   and `bibliography()` appear at most once. Each chapter file must appear in a `chapter()` call, otherwise it is not
   part of the document; the checker warns about such orphans. `{{ document('Titel', state='development') }}` while
-  the document is being written: chapters may be commented out (`{# {{ chapter(…) }} #}`) to build only the one being
-  edited, and a `ref()` to a target in them is only a warning (the Word document shows `??`). With
-  `state='production'` (the default) it is an error. The former `title()` no longer exists. A `subchapter()` stands
+  the document is being written: chapters, the Glossar, the bibliography and the Stichwortverzeichnis may be
+  commented out (`{# {{ chapter(…) }} #}`) to build only the chapter being edited, and a reference whose target is
+  then missing is only a warning: a `ref()` without its anchor (the Word document shows `??`), a `cite()` without
+  `bibliography()` or entry (`[?]`), an `index()` without `keyword_index()`, a `glossar()` commented out (its terms
+  are not linked). With `state='production'` (the default) each is an error. `type` says what kind of document it
+  is: `'theory'` (default), `'exercise'`, `'exam_assignment'` or `'report'`. The former `title()` no longer exists. A `subchapter()` stands
   right after its `chapter()` or another `subchapter()`; commenting out the `chapter()` line leaves out its
   subchapters too (they are never appended to the chapter before it).
 
