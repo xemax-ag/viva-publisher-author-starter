@@ -4,7 +4,7 @@ r"""Pre-check the Markdown files of a viva publisher document against the rules 
     python3 check_commands.py <document folder | _main_.md | chapter.md> [more files …]
 
 Given a document folder (or any file in it) it finds the manifest `_main_.md`, follows its calls to the cover,
-imprint, management summary, chapters, glossar and sources files and checks them together: call syntax and
+imprint, management summary, chapters, subchapters, glossar and sources files and checks them together: call syntax and
 arguments, where each command may stand, the files it names, the tags and attributes of HTML tables, and over the
 whole document the uuids, anchors, ref() targets and cite() keys. Without a manifest only the given files are checked (no cross-file checks).
 
@@ -42,7 +42,7 @@ IMAGE_PARAMS = ('src', 'width', 'height', 'scale', 'align', 'border', 'crop', 'w
                 'anchor', 'alt_text', 'rotate')
 
 SPECS: dict[str, Spec] = {
-    'title': Spec(('text',), ('text',), where='manifest'),
+    'document': Spec(('title', 'state'), ('title',), where='manifest'),
     'logo': Spec(('name',), ('name',), where='manifest'),
     'watermark': Spec(('text', 'color'), ('text',), where='manifest'),
     'cover': Spec(('src', 'image'), where='manifest'),
@@ -50,6 +50,7 @@ SPECS: dict[str, Spec] = {
     'management_summary': Spec(('src',), where='manifest'),
     'table_of_contents': Spec(where='manifest'),
     'chapter': Spec(('src', 'image'), ('src',), where='manifest'),
+    'subchapter': Spec(('src',), ('src',), where='manifest'),
     'list_of_illustrations': Spec(('unnumbered',), where='manifest'),
     'list_of_tables': Spec(('unnumbered',), where='manifest'),
     'glossar': Spec(('src',), where='manifest'),
@@ -77,7 +78,10 @@ SPECS: dict[str, Spec] = {
     'content': Spec(('uuid',), ('uuid',), forms='call'),
     'uuid': Spec(('uuid',), ('uuid',)),
 }
-ONCE = {'title', 'logo', 'watermark', 'bibliography'}
+ONCE = {'document', 'logo', 'watermark', 'bibliography'}
+RENAMED = {'title': "document('…')"}   # a former command: its new call
+STATES = ('development', 'production')   # document(state=…)
+CHAPTER_CALL = re.compile(r'(?<!\w)chapter\s*\(')   # a chapter( call, not subchapter(
 BLOCK_CALLS = {'image', 'page_break', 'table', 'learning_objectives', 'qr_code', 'grid', 'label', 'note',
                'frame', 'list'}
 ICONS = {'learning_objective', 'bell', 'magnifying_glass', 'arrow_right', 'summary'}  # reference/template/icons/
@@ -343,7 +347,8 @@ class Doc:
             name, pos, kws = parsed
             spec = SPECS.get(name)
             if spec is None:
-                report.error(path, ln + 1, f'unknown command `{name}()` (see the overview in COMMANDS.md)')
+                report.error(path, ln + 1, f'unknown command `{name}()` ' + (
+                    f'(now `{{{{ {RENAMED[name]} }}}}`)' if name in RENAMED else '(see the overview in COMMANDS.md)'))
                 continue
             args = self._bind(name, spec, pos, kws, ln)
             call = Call(name, args, form, ln, eln, s, e, alone, tuple(c.name for c in stack), in_fence, in_span)
@@ -593,6 +598,7 @@ class Checker:
         self.once: dict[str, tuple[Path, int]] = {}
         self.manifest: Path | None = None
         self.bibliography: Path | None = None
+        self.state = 'production'   # document(state=…): in development a ref() without target only warns
         self.table_ctx: dict[int, Call] = {}   # line of a table row -> its table()/learning_objectives() call
         self.table_caption: dict[int, bool] = {}
 
@@ -703,11 +709,35 @@ class Checker:
             return
         self.check_manifest(doc)
         seen = {self.manifest}
+        previous, chapter = None, None   # the manifest's call before; the file of the chapter of a subchapter()
         for c in doc.calls:
+            before, previous = previous, c
+            if c.name == 'subchapter':
+                if before is None or before.name not in ('chapter', 'subchapter'):
+                    self.r.error(doc.path, c.line + 1, '`subchapter()` only after its `chapter()` or another '
+                                                       '`subchapter()`')
+                    continue
+                if any(CHAPTER_CALL.search(ln) for ln in doc.lines[before.end_line + 1:c.line]):
+                    chapter = None   # its chapter() is commented out: left out with it (the ones after it, too)
+                if chapter is None:
+                    continue
+            elif c.name == 'chapter':
+                chapter = None
             for key, default, kind in self.manifest_files(c):
                 p = self.file_arg(doc, c, key, default)
+                if p is not None and kind == 'subchapter':
+                    if p in seen:
+                        self.r.error(doc.path, c.line + 1, f'`subchapter({c.args.get("src")!r})`: already part of '
+                                                           'the document')
+                        continue
+                    if p.parent != chapter.parent:
+                        self.r.error(doc.path, c.line + 1, f'`subchapter({c.args.get("src")!r})`: not in the folder '
+                                                           'of its chapter (its pictures and files are relative to it)')
+                        continue
                 if p is None or (p in seen and kind != 'image'):
                     continue
+                if c.name == 'chapter' and key == 'src':
+                    chapter = p
                 seen.add(p)
                 if kind == 'image':
                     continue
@@ -733,6 +763,7 @@ class Checker:
     def manifest_files(c: Call):
         defaults = {'cover': ('cover.md', 'cover'), 'imprint': ('impressum.md', 'imprint'),
                     'management_summary': ('management_summary.md', 'summary'), 'chapter': (None, 'chapter'),
+                    'subchapter': (None, 'subchapter'),
                     'glossar': ('glossar.md', 'glossar'), 'bibliography': ('quellen.md', 'sources')}
         if c.name in defaults:
             default, kind = defaults[c.name]
@@ -760,7 +791,7 @@ class Checker:
                 self.r.error(doc.path, i + 1, 'the manifest holds only calls, one per line, and `{# … #}` comments')
         for c in doc.calls:
             self.check_call(doc, c, 'manifest')
-            if c.name in ONCE or SPECS[c.name].where == 'manifest' and c.name != 'chapter':
+            if c.name in ONCE or SPECS[c.name].where == 'manifest' and c.name not in ('chapter', 'subchapter'):
                 if c.name in self.once:
                     fp, fl = self.once[c.name]
                     (self.r.error if c.name in ONCE else self.r.warn)(
@@ -787,6 +818,11 @@ class Checker:
                 self.r.warn(doc.path, first + 1, 'a chapter starts with its one `#` heading')
             for i in tops[1:]:
                 self.r.warn(doc.path, i + 1, 'a second `#` heading in a chapter file (a chapter has exactly one)')
+        if kind == 'subchapter':
+            for i in headings:
+                if re.match(r'#(?:[ \t]|$)', doc.lines[i]):
+                    self.r.error(doc.path, i + 1, 'a `#` heading starts a new chapter; the headings of a subchapter '
+                                                  'start at `##`')
         for i, ln in enumerate(doc.lines):
             if ln.lstrip().startswith('<table') and i not in doc.fence_lines and i not in self.table_ctx:
                 doc.table_at(i)   # checks colspan/rowspan of a table without table()
@@ -858,7 +894,7 @@ class Checker:
             where = 'a code block' if c.in_fence else 'a code span'
             self.r.warn(doc.path, c.line + 1, f'`{c.name}()` in {where} is run by Jinja; to show it as text put it '
                                               'between `{% raw %}` and `{% endraw %}`')
-            if c.name in ('image', 'chapter', 'cover'):   # its file is still read
+            if c.name in ('image', 'chapter', 'subchapter', 'cover'):   # its file is still read
                 self.file_arg(doc, c, 'src')
             return
         if kind == 'manifest' and spec.where == 'chapter':
@@ -883,8 +919,11 @@ class Checker:
         getattr(self, 'c_' + c.name, lambda *_: None)(doc, c)
 
     # ---- manifest commands
-    def c_title(self, doc, c):
-        self.text_arg(doc, c, 'text')
+    def c_document(self, doc, c):
+        self.text_arg(doc, c, 'title')
+        self.choice_arg(doc, c, 'state', STATES)
+        if c.args.get('state') in STATES:
+            self.state = c.args['state']
 
     def c_logo(self, doc, c):
         v = c.args.get('name')
@@ -1156,10 +1195,11 @@ class Checker:
 
     # ---- after all files
     def resolve(self, cross_file: bool):
-        report = self.r.error if cross_file else self.r.warn
+        report = self.r.error if cross_file and self.state == 'production' else self.r.warn
         for name, p, ln in self.refs:
             if name not in self.anchors:
-                report(p, ln, f'`ref({name!r})`: no heading, figure or table has this anchor')
+                report(p, ln, f'`ref({name!r})`: no heading, figure or table has this anchor'
+                       + (' (development: built with ??)' if self.state == 'development' else ''))
         if self.cites:
             if cross_file and self.bibliography is None:
                 p, ln = self.cites[0][1:]

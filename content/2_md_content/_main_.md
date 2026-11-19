@@ -1,4 +1,4 @@
-{{ title('Demo Starter', uuid='6a0bdadf-b8cc-46b6-a83c-802994a30ae1') }}
+{{ document('Demo Starter', state='development', uuid='6a0bdadf-b8cc-46b6-a83c-802994a30ae1') }}
 {{ watermark('MUSTER', uuid='60a90200-989b-4877-8337-701ec4f23803') }}
 {{ cover('cover.md', image='images/cover/titelbild.png', uuid='56a9c202-3ef2-47bb-960d-53684f5321ca') }}
 {{ imprint(uuid='e2d55aaa-18cd-44ea-9bda-7170b797b42e') }}
@@ -6,7 +6,9 @@
 {{ table_of_contents(uuid='50fbd782-a33c-435f-9596-0c4983d43d0f') }}
 {{ chapter('_1_text_und_struktur.md', image='images/1_text_und_struktur/chapter_image.png', uuid='c45a84db-d2e9-48c8-9485-4ecd6a4b1842') }}
 {{ chapter('_2_bilder.md', image='images/2_bilder/chapter_image.png', uuid='6cc83f42-9e1c-44db-8779-24c55013ff60') }}
-{{ chapter('_3_tabellen.md', image='images/3_tabellen/chapter_image.png', uuid='f91906e5-f5f7-46d8-afe5-028b02acecac') }}
+{{ chapter('_3_0_tabellen.md', image='images/3_tabellen/chapter_image.png', uuid='f91906e5-f5f7-46d8-afe5-028b02acecac') }}
+{{ subchapter('_3_1_html_tabellen.md') }}
+{{ subchapter('_3_2_bilder_in_tabellen.md') }}
 {{ chapter('_4_formeln.md', image='images/4_formeln/chapter_image.png', uuid='5947f226-1fc7-45c7-aa17-134d37cdad28') }}
 {{ chapter('_5_didaktische_elemente.md', image='images/5_didaktische_elemente/chapter_image.png', uuid='ca828cd4-d38e-4ea8-9512-aec1642d07a4') }}
 {{ list_of_illustrations(uuid='0924a3b0-4140-434c-be31-9bc05eb0f583') }}

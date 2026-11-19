@@ -1,6 +1,6 @@
 ---
 name: viva-commands
-description: Format, write, convert and check the Markdown content of a viva publisher document (textbook template textbook_2026_V02 → Word → PDF) with the render-step commands of COMMANDS.md — {{ image() }}, {{ table() }}, {{ formula() }}, {{ ref() }}/{{ anchor() }}, {{ cite() }}, {{ footnote() }}, {{ index() }}, {{ label() }}, {{ note() }}, {{ frame() }}, {{ learning_objectives() }}, {{ uuid() }} and the manifest _main_.md. Use this skill whenever the user wants to create or edit a manifest, chapter, cover, impressum, management summary, glossar or quellen file (e.g. under 2_md_content/), turn plain Markdown, Word-exported or pasted text into this format, add pictures, tables, formulas, learning objectives, Hinweis/Beispiel/Aufgabe boxes or cross references, or find and fix render-step problems — even if they don't mention COMMANDS.md or "commands".
+description: Format, write, convert and check the Markdown content of a viva publisher document (textbook template textbook_2026_V02 → Word → PDF) with the render-step commands of COMMANDS.md — {{ image() }}, {{ table() }}, {{ formula() }}, {{ ref() }}/{{ anchor() }}, {{ cite() }}, {{ footnote() }}, {{ index() }}, {{ label() }}, {{ note() }}, {{ frame() }}, {{ learning_objectives() }}, {{ uuid() }} and the manifest _main_.md with {{ document() }} (title, state development/production) and {{ subchapter() }} (a large chapter split into several files). Use this skill whenever the user wants to create or edit a manifest, chapter, cover, impressum, management summary, glossar or quellen file (e.g. under 2_md_content/), turn plain Markdown, Word-exported or pasted text into this format, add pictures, tables, formulas, learning objectives, Hinweis/Beispiel/Aufgabe boxes or cross references, or find and fix render-step problems — even if they don't mention COMMANDS.md or "commands".
 ---
 
 # viva-commands: Markdown for the viva publisher converter
@@ -45,11 +45,13 @@ may edit.
 
    | Demo file | Shows |
    | --- | --- |
-   | `_main_.md` | manifest: title, watermark, cover with picture, imprint, management summary, TOC, chapters with opener pictures, lists of figures/tables, glossar, bibliography, keyword index |
+   | `_main_.md` | manifest: document (title, state), watermark, cover with picture, imprint, management summary, TOC, chapters with opener pictures, a chapter with two subchapters, lists of figures/tables, glossar, bibliography, keyword index |
    | `cover.md`, `impressum.md`, `management_summary.md`, `glossar.md`, `quellen.md` | the formats of these files |
    | `_1_text_und_struktur.md` | headings + `anchor()`, bold/italic, `color()`, `<br>`, escapes, lists, `{% call list() %}`, `link()`, `ref()`, `footnote()`, `cite()`, `index()`, `uuid()`, comments, code blocks, `page_break()` |
    | `_2_bilder.md` | `image()` with every option, Markdown picture, placeholder `((…))`, `qr_code()`, `grid()` |
-   | `_3_tabellen.md` | pipe and HTML tables, `Tabelle:` captions, `table()` widths/anchor/`numbered`, colspan/rowspan, turned cells, row `height`, `type='pictures'`, `type='layout'`, `content()` |
+   | `_3_0_tabellen.md` | pipe tables, `Tabelle:` captions, `table()` widths/anchor/`numbered`; the chapter of the two subchapters below |
+   | `_3_1_html_tabellen.md` | a subchapter (no `#` heading, starts at `##`): how `subchapter()` and `document(state=…)` work, HTML tables, colspan/rowspan, turned cells, row `height` |
+   | `_3_2_bilder_in_tabellen.md` | a subchapter: `type='pictures'`, `type='layout'`, `content()` |
    | `_4_formeln.md` | `formula()` inline, on its own line, `align`, LaTeX examples |
    | `_5_didaktik.md` | `label()` + icons, `learning_objectives()` + `link_lo()`, `note()`, `frame()`, boxes `> [!AUFGABE]` etc., Selbstkontrolle |
 
@@ -103,6 +105,7 @@ escapes (`3\. Schritt`, `\# kein Titel`, `2\*3`). For everything else:
 | In the source | Write |
 | --- | --- |
 | chapter title | exactly one `# Title {{ anchor('kap_…') }}` as the first line; `##`/`###` are numbered (1.1, 1.1.1), `####` is an unnumbered subheading. Do not type the numbers yourself. |
+| a chapter too large for one file | the chapter file (with its `#` title) + one file per part, each without a `#` heading (it starts at `##`), in the chapter file's folder; in the manifest `{{ subchapter('_3_1_….md') }}` right after its `chapter()`, in order. The render step appends each to its chapter. |
 | picture + «Abbildung 3: Aufbau» | `{{ image('images/aufbau.png', title='Aufbau', anchor='abb_aufbau') }}` on its own line. Drop «Abbildung n:» because the converter numbers the caption. Leave out `width` unless the picture should be smaller: without it the picture keeps its native size (pixels ÷ dpi, at most the text column), and a larger `width` blows it up and blurs it. |
 | picture not yet available | `((aufbau.png))` placeholder. An `image()` pointing to a missing file is a problem. |
 | «siehe Abbildung 3 / Tabelle 2 / Abschnitt 1.2» | `{{ ref('abb_aufbau') }}` (`'title'`, `'page'` for title or page) + an anchor on the target. Never hard-code numbers. |
@@ -164,15 +167,21 @@ These are the mistakes the render step most often rejects. The full lists are in
   `python3 -c "import uuid; print(uuid.uuid4())"`.
 - **Showing a command as text.** Jinja also runs calls inside code fences and code spans. To show a call
   literally, wrap it in `{% raw %}` … `{% endraw %}`, as the demo does.
-- **Manifest.** It holds only calls, one per line, plus `{# … #}` comments. `title()`, `logo()`, `watermark()` and
-  `bibliography()` appear at most once. Each chapter file must appear in a `chapter()` call, otherwise it is not
-  part of the document; the checker warns about such orphans.
+- **Manifest.** It holds only calls, one per line, plus `{# … #}` comments. `document()`, `logo()`, `watermark()`
+  and `bibliography()` appear at most once. Each chapter file must appear in a `chapter()` call, otherwise it is not
+  part of the document; the checker warns about such orphans. `{{ document('Titel', state='development') }}` while
+  the document is being written: chapters may be commented out (`{# {{ chapter(…) }} #}`) to build only the one being
+  edited, and a `ref()` to a target in them is only a warning (the Word document shows `??`). With
+  `state='production'` (the default) it is an error. The former `title()` no longer exists. A `subchapter()` stands
+  right after its `chapter()` or another `subchapter()`; commenting out the `chapter()` line leaves out its
+  subchapters too (they are never appended to the chapter before it).
 
 ## Starting a new document
 
 Mirror `<skill>/assets/demo_starter/`: create a document folder (in an author project
 `content/2_md_content/<name>/`) with `_main_.md`, `cover.md` (and `impressum.md` if the cover has a picture), one
-file per chapter (`_1_….md`, `_2_….md`), an `images/` folder, and `glossar.md`/`quellen.md` if they are needed.
-Start from a copy of the demo's `_main_.md` and remove the entries you don't need. Don't copy whole demo chapters:
+file per chapter (`_1_….md`, `_2_….md`; a large one split with `subchapter()`), an `images/` folder, and
+`glossar.md`/`quellen.md` if they are needed. Start from a copy of the demo's `_main_.md` and remove the entries you
+don't need; while the document is being written use `document(…, state='development')`. Don't copy whole demo chapters:
 they carry the demo's uuids, and a copied uuid connects the new document to the wrong Word blocks. Then run the
 checker on the new folder.

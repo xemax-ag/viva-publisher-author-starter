@@ -136,10 +136,22 @@ CASES = {
     'jinja_var': "Text {{ foo }}.",
     'placeholder': "((fehlt.png))",
     'chapter_two_h1': "# Zweiter Titel",
-    # other files: (file, mode, text) — mode 'append' or 'replace:<old>'
+    # other files: (file, mode, text) — mode 'append' or 'replace:<old>'; a list of them: each in turn
     'man_chapter_only_cmd': ('_main_.md', 'append', "{{ note() }}"),
     'man_text_line': ('_main_.md', 'append', "Ein Satz."),
-    'man_title_twice': ('_main_.md', 'append', "{{ title('Nochmal') }}"),
+    'man_document_twice': ('_main_.md', 'append', "{{ document('Nochmal') }}"),
+    'man_title_removed': ('_main_.md', 'append', "{{ title('Alt') }}"),
+    'man_document_bad_state': ('_main_.md', 'replace:state=\'production\'', "state='entwurf'"),
+    'ref_missing_production': ('_1_text_und_struktur.md', 'append', "\nSiehe {{ ref('weg') }}."),
+    'ref_missing_development': [('_main_.md', "replace:state='production'", "state='development'"),
+                                ('_1_text_und_struktur.md', 'append', "\nSiehe {{ ref('weg') }}.")],
+    'sub_h1': ('_3_2_bilder_in_tabellen.md', 'append', "\n# Neues Kapitel"),
+    'sub_not_after_chapter': ('_main_.md', "replace:{{ subchapter('_3_2_bilder_in_tabellen.md') }}", "{{ page_break() }}\n{{ subchapter('_3_2_bilder_in_tabellen.md') }}"),
+    'sub_twice': ('_main_.md', "replace:{{ subchapter('_3_2_bilder_in_tabellen.md') }}", "{{ subchapter('_3_2_bilder_in_tabellen.md') }}\n{{ subchapter('_3_1_html_tabellen.md') }}"),
+    'sub_commented_out': ('_main_.md', "replace:{{ subchapter('_3_2_bilder_in_tabellen.md') }}", "{# {{ subchapter('_3_2_bilder_in_tabellen.md') }} #}"),
+    'sub_chapter_commented_production': ('_main_.md', "replace:{{ chapter('_3_0_tabellen.md', image='images/kapitel_3.svg') }}", "{# {{ chapter('_3_0_tabellen.md', image='images/kapitel_3.svg') }} #}"),
+    'sub_chapter_commented_development': [('_main_.md', "replace:state='production'", "state='development'"),
+                                          ('_main_.md', "replace:{{ chapter('_3_0_tabellen.md', image='images/kapitel_3.svg') }}", "{# {{ chapter('_3_0_tabellen.md', image='images/kapitel_3.svg') }} #}")],
     'man_toc_twice': ('_main_.md', 'append', "{{ table_of_contents() }}"),
     'man_page_break_text': ('_main_.md', 'append', "{{ page_break() }} x"),
     'man_call_form': ('_main_.md', 'append', "{% call note() %}\n{% endcall %}"),
@@ -164,16 +176,16 @@ def build(tmp: Path, case):
                                     "{{ chapter('_5_didaktik.md', image='images/kapitel_5.svg') }}\n{{ chapter('_9_test.md') }}")
         man.write_text(s)
     else:
-        f, mode, text = case
-        p = doc / f
-        s = p.read_text()
-        if mode == 'append':
-            s = s.rstrip('\n') + '\n' + text + '\n'
-        else:
-            old = mode.split(':', 1)[1]
-            assert old in s, (f, old)
-            s = s.replace(old, text)
-        p.write_text(s)
+        for f, mode, text in case if isinstance(case, list) else [case]:
+            p = doc / f
+            s = p.read_text()
+            if mode == 'append':
+                s = s.rstrip('\n') + '\n' + text + '\n'
+            else:
+                old = mode.split(':', 1)[1]
+                assert old in s, (f, old)
+                s = s.replace(old, text)
+            p.write_text(s)
     return doc
 
 

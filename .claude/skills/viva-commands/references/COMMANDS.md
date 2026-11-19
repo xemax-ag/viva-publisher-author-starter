@@ -26,7 +26,7 @@ its check is a problem with its file and line; then nothing is converted.
   in that order. An unknown or a missing argument is a problem. Strings in `'…'` or `"…"`.
 - **Files:** relative to the calling file (in the manifest: the manifest folder); a leading `/` is relative to the
   manifest folder. The file arguments named below must exist.
-- **Once:** `title()` and `logo()` at most once per document.
+- **Once:** `document()` and `logo()` at most once per document.
 - **Enclosing:** `note()`, `frame()`, `table()` and `learning_objectives()` also as `{% call note() %}` …
   `{% endcall %}`, `list()` only so, each on a line of its own: the blocks between them are its content.
   `content()` only so, inside a table cell. Inside, only what the command names below (e.g. `formula()` lines in a
@@ -92,7 +92,7 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
 
 | Command | Where | Arguments (positional first) | What it writes |
 | --- | --- | --- | --- |
-| [`title`](#title) | manifest | `text` | the document title |
+| [`document`](#document) | manifest | `title`, `state='production'` | the document title and its state (`'development'`: a `ref()` without target does not stop the build) |
 | [`logo`](#logo) | manifest | `name` | the logos of the colour bands and the page headers |
 | [`watermark`](#watermark) | manifest | `text`, `color='#C0C0C0'` | a text watermark on every page, e.g. «ENTWURF» |
 | [`cover`](#cover) | manifest | `src='cover.md'`, `image=None` | the title page |
@@ -100,6 +100,7 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
 | [`management_summary`](#management_summary) | manifest | `src='management_summary.md'` | the Management Summary, not numbered |
 | [`table_of_contents`](#table_of_contents) | manifest | – | the table of contents |
 | [`chapter`](#chapter) | manifest | `src`, `image=None` | a chapter |
+| [`subchapter`](#subchapter) | manifest, after its `chapter()` | `src` | a part of the chapter before it, from a file of its own |
 | [`list_of_illustrations`](#list_of_illustrations) | manifest | `unnumbered=True` | the Abbildungsverzeichnis |
 | [`list_of_tables`](#list_of_tables) | manifest | `unnumbered=True` | the Tabellenverzeichnis |
 | [`glossar`](#glossar) | manifest | `src='glossar.md'` | the Glossar |
@@ -129,10 +130,22 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
 
 ## Manifest
 
-### title
+### document
 
-`{{ title('Antriebstechnik') }}` — the document title (header field TITLE), also the title of the cover if the cover
-does not set one. `text` must not be empty. At most once.
+`{{ document('Antriebstechnik') }}`, `{{ document('Antriebstechnik', state='development') }}` — the document title
+(header field TITLE), also the title of the cover if the cover does not set one, and the document's state. `title`
+must not be empty. `state`:
+
+- `'production'` (default): the document is finished. A `ref()` whose target is not in the document is a problem: the
+  build stops, no Word document is made.
+- `'development'`: the document is being written. To save time, chapters (and the lists, the glossar …) can be
+  commented out in the manifest, e.g. `{# {{ chapter('_5_didaktik.md') }} #}` (its [`subchapter()`](#subchapter)
+  calls are left out with it), so that only the chapter being edited is built. A `ref()` whose target is no longer part of the document is still reported, «… ref(): no anchor
+  'didaktik' in the document (development: built with ??)», but the build goes on and the Word document shows `??` in
+  its place. Every other problem still stops the build.
+
+At most once. The Word imports write `state='production'`. It replaces the former `title(text)`: a call of `title()`
+is a problem.
 
 ### logo
 
@@ -208,6 +221,27 @@ numbers start at 1 on the first page after it; the pages before have none.
 `{{ chapter('kapitel_1.md') }}`, `{{ chapter('kapitel_1.md', image='opener.png') }}` — a chapter from a Markdown file
 (rendered too, so its calls are checked as well). `image`: a picture filling the chapter opener's page below the colour
 band, full width down to the bottom edge; the chapter text then starts on the next page. Both files must exist.
+
+### subchapter
+
+```
+{{ chapter('_3_0_tabellen.md', image='images/3_tabellen/chapter_image.png') }}
+{{ subchapter('_3_1_pipe_tabellen.md') }}
+{{ subchapter('_3_2_html_tabellen.md') }}
+```
+
+A large chapter split into several Markdown files: each `subchapter()` stands in the manifest right after its
+`chapter()` or another `subchapter()` of it (comments between them are fine). Its file `src` is rendered and checked
+like a chapter, then the render step appends its text to its chapter, in the order of the manifest: the converter
+writes one chapter, its `##` and `###` headings numbered on (1.3, 1.4 …), the overview of its colour band with them.
+
+- `src` is in the folder of its chapter's file (its pictures and files are relative to it), and is part of the
+  document once (not also a `chapter()` or another `subchapter()`).
+- No `#` heading: it would start a new chapter. The headings of a subchapter start at `##`.
+- A subchapter can be commented out on its own, `{# {{ subchapter('_3_2_html_tabellen.md') }} #}`. A chapter
+  commented out takes its subchapters along: they are left out, not appended to the chapter before it.
+- A `subchapter()` that follows no `chapter()` (the first call, or after e.g. `table_of_contents()`) is a problem.
+- The Word import writes a chapter as one file: the subchapters come back as part of their chapter's file.
 
 ### list_of_illustrations
 
@@ -340,7 +374,8 @@ reference to the target `name` at this place in the text, a link to it (clickabl
 heading of `####` or a picture with `numbered=False` has none: its title —, `'title'` its title, `'page'` its page (a
 page reference, set when the pages are). The converter fills the number and the title when the whole document is
 written, so the target may also come later. A name no target has is a problem (the render step checks it after all
-files).
+files); in a document in development ([`document(state='development')`](#document)) it is only reported and the
+converter writes `??`.
 
 ### cite
 

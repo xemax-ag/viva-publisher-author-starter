@@ -1,6 +1,8 @@
 {# Demo Starter: das Manifest. Jede Zeile ein Eintrag des Dokuments, in dieser Reihenfolge; ausser den Aufrufen nur
    Kommentare wie dieser (die das Rendern entfernt). Dateien relativ zu diesem Ordner. #}
-{{ title('Demo Starter') }}
+{# state='development', solange das Dokument entsteht: Kapitel lassen sich auskommentieren, ein Verweis in sie
+   wird nur gemeldet (?? im Dokument); state='production' (die Vorgabe): ein Verweis ohne Ziel bricht ab #}
+{{ document('Demo Starter', state='production') }}
 {# ein eigenes Logo aus reference/template/logos/misc/, z. B. logo('nextecmedia'); ohne logo() bleiben die Logos der Vorlage #}
 {{ watermark('MUSTER') }}
 {{ cover('cover.md', image='images/cover.svg') }}
@@ -9,7 +11,10 @@
 {{ table_of_contents() }}
 {{ chapter('_1_text_und_struktur.md', image='images/kapitel_1.svg') }}
 {{ chapter('_2_bilder.md', image='images/kapitel_2.svg') }}
-{{ chapter('_3_tabellen.md', image='images/kapitel_3.svg') }}
+{{ chapter('_3_0_tabellen.md', image='images/kapitel_3.svg') }}
+{# ein grosses Kapitel auf mehrere Dateien verteilt: jeder Teil hängt an seinem Kapitel #}
+{{ subchapter('_3_1_html_tabellen.md') }}
+{{ subchapter('_3_2_bilder_in_tabellen.md') }}
 {{ chapter('_4_formeln.md', image='images/kapitel_4.svg') }}
 {{ chapter('_5_didaktik.md', image='images/kapitel_5.svg') }}
 {{ list_of_illustrations() }}
