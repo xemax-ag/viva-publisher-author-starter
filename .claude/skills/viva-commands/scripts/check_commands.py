@@ -1112,8 +1112,10 @@ class Checker:
         for k in keys:
             self.need(isinstance(k, str) and GUID_RE.match(k), doc, c, f'key {k!r} is no GUID 8-4-4-4-12')
         table = self.table_ctx.get(c.line)
-        if not self.need(table is not None and table.name == 'learning_objectives', doc, c,
-                         'only in the first cell of a `learning_objectives()` row, after the number'):
+        if table is None or table.name != 'learning_objectives':
+            self.need(table is None and self.link_lo_at_end(doc, c), doc, c,
+                      'only in the first cell of a `learning_objectives()` row, after the number, or at the end of a '
+                      'heading or a text paragraph')
             return
         if doc.is_pipe(c.line):
             line = doc.flat_lines[c.line]
@@ -1121,6 +1123,41 @@ class Checker:
             before = re.sub(r'x{5,}', '', line[:off])
             self.need(re.match(r'^\s*\|\s*[^\s|]+\s*$', before), doc, c,
                       'right after the number of the objective, in its first cell')
+
+    BLOCK_START_RE = re.compile(r'\s*(#{1,6}\s|[-*+]\s|\d+[.)]\s|>|\||\{\{|\{%|<!--|```|<table)')
+
+    def link_lo_at_end(self, doc, c) -> bool:
+        """`link_lo()` at the end of a heading or a text paragraph (the section or paragraph belongs to that learning
+        objective): text before it, after it only `link_lo()`, `anchor()` and `uuid()`; a paragraph's last line; not
+        a list item, a box (`>`), a table cell or a paragraph of `note()`/`frame()` (as the render step)."""
+        raw = doc.lines[c.line]
+        if c.alone or c.end_line != c.line or doc.in_cell(c.line) or raw.lstrip().startswith('>') \
+                or re.match(r'\s*([-*+]|\d+[.)])\s', raw) or c.line in self.governed(doc):
+            return False
+        line, start = doc.flat_lines[c.line], doc.line_starts[c.line]
+        before = re.sub(r'x{5,}', '', re.sub(r'^\s*#{1,6}\s+', '', line[:c.start - start]))
+        after = re.sub(r'x{5,}', '', line[c.end - start:])
+        later = [o for o in doc.calls if o.line == c.line and o.start > c.start]
+        if not before.strip() or after.strip() or any(o.name not in ('link_lo', 'anchor', 'uuid') for o in later):
+            return False
+        nxt = c.line + 1
+        return bool(HEADING_RE.match(raw)) or doc.is_blank(nxt) or bool(self.BLOCK_START_RE.match(doc.lines[nxt]))
+
+    def governed(self, doc) -> set[int]:
+        """The lines of the paragraphs `note()` and `frame()` take: below their line form up to an empty line, and
+        between their `{% call %}` and `{% endcall %}`."""
+        lines = set()
+        for o in doc.calls:
+            if o.name not in ('note', 'frame'):
+                continue
+            if o.form == 'expr':
+                i = o.end_line + 1
+                while not doc.is_blank(i):
+                    lines.add(i)
+                    i += 1
+            else:
+                lines.update(self.enclosed(doc, o))
+        return lines
 
     def c_content(self, doc, c):
         self.need(doc.in_cell(c.line), doc, c, 'only inside a table cell')

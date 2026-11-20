@@ -118,7 +118,7 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
 | [`formula`](#formula) | chapter, inline or own line | `tex`, `align='left'` | a Word equation |
 | [`table`](#table) | chapter | `*widths`, `type='default'`, `anchor=None`, `numbered=True` | the column widths of the next table (`type='pictures'`: pictures side by side; `type='layout'`: text and pictures in columns) |
 | [`learning_objectives`](#learning_objectives) | chapter | `*widths='2.3cm', '13.7cm'` | the next table as the learning objectives |
-| [`link_lo`](#link_lo) | chapter, after the number of a learning objective | `*keys` | its keys in the database futuremem (link learning objective): a Word comment `link_lo: …` on the number |
+| [`link_lo`](#link_lo) | chapter, after the number of a learning objective, or at the end of a heading or a text paragraph | `*keys` | its keys in the database futuremem (link learning objective): a Word comment `link_lo: …` on the number, the heading or the paragraph |
 | [`qr_code`](#qr_code) | chapter | `text=None`, `size='2.5cm'`, `color='#007DB3'`, `alignment='left'` | a QR code (without text a warning sign) |
 | [`grid`](#grid) | chapter | `spacing='5mm'`, `n_width=32`, `n_height=47`, `thickness='0.15mm'`, `color='#A8C9CF'`, `alignment='left'` | squared paper: a grid of squares |
 | [`label`](#label) | chapter | `text`, `icon=None`, `link=None`, `offset_x=None`, `offset_y=None` | a label with an icon, e.g. «Lernziel», «Selbstkontrolle», «Hinweis» |
@@ -424,7 +424,9 @@ invalid width, fixed widths over 16 cm, no table after it, a wrong number of wid
 than 16 cm: a narrower table. `anchor='werte'`: the table's name, a target of [`ref()`](#ref)
 («Tabelle 1.2», its title, its page); it needs the `Tabelle: …` line. `numbered=False`: the caption without
 «Tabelle n:», only its title (in the same style and place; listed by [`list_of_tables()`](#list_of_tables) without
-number, `ref()` gives its title); it needs the `Tabelle: …` line.
+number, `ref()` gives its title); it needs the `Tabelle: …` line. In the Word document the caption stands below
+the table, in the style Figure Caption like the caption of a picture, the table's last row kept with it; the
+template import reads a Figure Caption right below a table, or a Figure Title right above it, as its `Tabelle: …` line.
 
 The same around its table (both imports write it so): `{% call table(…) %}` and `{% endcall %}` on lines of
 their own, between them the `Tabelle: …` line (if any) and the table, nothing else:
@@ -809,10 +811,24 @@ at least one:
 The converter writes the keys as the Word comment `link_lo: <key>; <key>` of the author futuremem on the number, as
 the authors write them (author guide, chapter 6.1.3); the PDF shows no comments. Several keys in one call are one
 comment; several calls on one number, `| LZ_1057 {{ link_lo('…') }} {{ link_lo('…', '…') }} |`, one comment each. The
-template import writes such a comment on the number of a learning objective back as `link_lo()`; a `link_lo:` comment
-elsewhere or without a key, and any other comment, it leaves out, each with a note in `CONVERT.md`. Errors: no key, a
-key that is no GUID, a keyword argument `keys=`,
-a call anywhere else (in a paragraph, another cell, a normal table, before the number or with text after it).
+template import writes such a comment on the number of a learning objective back as `link_lo()`.
+
+`link_lo()` at the end of a heading or a text paragraph links that section (the heading and what follows it, up to
+the next heading of the same or a higher level) or that paragraph to the learning objective: after its text, before
+`anchor()` and `uuid()`; several calls are possible:
+
+```markdown
+## Leistung bei Drehbewegungen {{ link_lo('4DB5AA70-18E2-DC4F-9E3C-8C6650BD5BF9') }} {{ anchor('drehbewegung') }}
+
+Die Welle eines Motors überträgt ein Drehmoment. {{ link_lo('D004F129-989D-18BA-92A8-68F10EB3D8FC') }}
+```
+
+The converter writes the comment over the whole heading or paragraph (not into the chapter overview of the colour
+band); the template import writes such a comment anywhere in a heading or a text paragraph — also on a few words of
+it — back as `link_lo()` at its end. A `link_lo:` comment elsewhere (a list item, a note, a table cell …) or without a
+key, and any other comment, the import leaves out, each with a note in `CONVERT.md`. Errors: no key, a key that is no
+GUID, a keyword argument `keys=`, a call anywhere else (inside the text of a paragraph, not at its end, in a list item,
+a box, a `note()` or `frame()`, another cell, a normal table, before the number or with text after it).
 
 ### label
 
