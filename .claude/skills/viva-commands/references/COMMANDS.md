@@ -76,7 +76,7 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
   reads back every command the conversion writes into the Word document, with the uuids of its content controls;
   where it reads each: `docx_to_md/convert/structure/commands.py` (`tests/docx_to_md/test_commands.py` converts each
   command and imports it again). Not read back, as the Word document holds nothing of it: the uuid of a manifest call
-  and of `ref()`, `anchor()`, `link_lo()` and the management summary's title (the import draws new ones); `alt_text`,
+  and of `ref()`, `anchor()`, `link_leo()` and the management summary's title (the import draws new ones); `alt_text`,
   `border` and `crop` of `image()` (`height` and `scale` come back as its `width`; a turned picture comes back
   turned, without `rotate`); `numbered=False` of `table()`; the
   widths of `learning_objectives()`; `unnumbered` of `list_of_illustrations()` and `list_of_tables()`; another
@@ -118,7 +118,7 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
 | [`formula`](#formula) | chapter, inline or own line | `tex`, `align='left'` | a Word equation |
 | [`table`](#table) | chapter | `*widths`, `type='default'`, `anchor=None`, `numbered=True` | the column widths of the next table (`type='pictures'`: pictures side by side; `type='layout'`: text and pictures in columns) |
 | [`learning_objectives`](#learning_objectives) | chapter | `*widths='2.3cm', '13.7cm'` | the next table as the learning objectives |
-| [`link_lo`](#link_lo) | chapter, after the number of a learning objective, or at the end of a heading or a text paragraph | `*keys` | its keys in the database futuremem (link learning objective): a Word comment `link_lo: …` on the number, the heading or the paragraph |
+| [`link_leo`](#link_leo) | chapter, after the number of a learning objective, or at the end of a heading or a text paragraph | `*keys` | its keys in the database futuremem (link learning objective): a Word comment `link_leo: …` on the number, the heading or the paragraph |
 | [`qr_code`](#qr_code) | chapter | `text=None`, `size='2.5cm'`, `color='#007DB3'`, `alignment='left'` | a QR code (without text a warning sign) |
 | [`grid`](#grid) | chapter | `spacing='5mm'`, `n_width=32`, `n_height=47`, `thickness='0.15mm'`, `color='#A8C9CF'`, `alignment='left'` | squared paper: a grid of squares |
 | [`label`](#label) | chapter | `text`, `icon=None`, `link=None`, `offset_x=None`, `offset_y=None` | a label with an icon, e.g. «Lernziel», «Selbstkontrolle», «Hinweis» |
@@ -421,7 +421,8 @@ share the rest equally); without widths, `table()`, the columns share the text c
 the InDesign import writes `{% call table() %}` so around every table without column widths of its own, the template
 import gives each table the widths of its grid). Problems: an
 invalid width, fixed widths over 16 cm, no table after it, a wrong number of widths. All widths fixed and narrower
-than 16 cm: a narrower table. `anchor='werte'`: the table's name, a target of [`ref()`](#ref)
+than 16 cm: a narrower table. `overlay='…svg'`: a picture over the whole table (see below). `anchor='werte'`: the
+table's name, a target of [`ref()`](#ref)
 («Tabelle 1.2», its title, its page); it needs the `Tabelle: …` line. `numbered=False`: the caption without
 «Tabelle n:», only its title (in the same style and place; listed by [`list_of_tables()`](#list_of_tables) without
 number, `ref()` gives its title); it needs the `Tabelle: …` line. In the Word document the caption stands below
@@ -594,11 +595,29 @@ with text are all in the style Solutions (a cell with other text too: plain text
 </table>
 ```
 
+`bgcolor` on a `<td>` or `<th>`: the cell's background, a colour `#RRGGBB` as in `color()` (`bgcolor="#A6D4DC"`) —
+in Word the cell's shading (Table Design › Shading), also over the shading of a header row; a cell over several rows or
+columns (`rowspan`, `colspan`) is shaded as a whole. It goes with `align`, `valign`, `vertical` and `solution`; the
+text keeps its colour (`color()` for another one). The template import writes it for a cell Word shades itself (its
+colour as Word shows it, a theme colour too; not the shading the table style gives, e.g. its header row), also for an
+empty cell:
+
+```markdown
+<table>
+  <tr>
+    <td>Kriterium</td>
+    <td bgcolor="#A6D4DC">erfüllt</td>
+    <td bgcolor="#FF7F7F" align="center">nicht erfüllt</td>
+  </tr>
+</table>
+```
+
 Other tags, a `rowspan` or `colspan` that is no whole number from 1, a `rowspan` that goes beyond the header rows or
 the last row, a `colspan` that runs into a column of a `rowspan` cell above (the converter shortens them), a
 `vertical` other than `up` or `down`, an `align` other than `left`, `center` or `right`, a `valign` other than `top`,
-`middle` (`center`) or `bottom`, a `solution` with a value, a `height` that is no length in cm, mm or pt, a table
-inside a cell, text outside of a cell and a missing `</table>` are problems.
+`middle` (`center`) or `bottom`, a `solution` with a value, a `bgcolor` that is no `#RRGGBB` (no colour name, not
+without `#`), a `height` that is no length in cm, mm or pt, a table inside a cell, text outside of a cell and a missing
+`</table>` are problems.
 
 `type`: the kind of table, `'default'` (the default: a table as above) or `'pictures'`: the table as pictures side by
 side, e.g. `{% call table('8.2cm', '7.8cm', type='pictures') %}` (the
@@ -641,13 +660,45 @@ lines are captions) or the learning objectives:
 <td>Die vier klassischen Gleichstrommotoren:<br>1. Reihenschlussmotor<br>1. Fremderregter Motor<br>1. Nebenschlussmotor</td>
 ```
 
+`overlay`: a picture over the whole table, e.g. a transparent SVG of lines drawn across its cells (a path from cell
+to cell, the solution of an exercise). Its file is relative to the chapter like `image()`'s (a missing file is a
+problem). Its top-left corner is the table's corner, and it moves with the table; it is stretched to its size (an SVG
+without keeping its proportions: draw it as wide and as high as the table) — but the SVG the template import makes is
+fitted: its lines and rectangles move and stretch with the size, its circles and ellipses keep their proportions.
+`overlay_width`: its width, cm, mm or pt (default: the table's width); `overlay_height`: its height (default: the
+table's height). Without `overlay_height` the PDF step measures the table: it exports the document once, takes the
+table's height from that PDF, writes it into the Word document and exports again (prints `overlay 1: as high as its
+table, 4.13 cm (measured)`). After the export the build writes the overlay's size into the call in the Markdown, each
+of `overlay_width` and `overlay_height` the call does not have (prints `overlay size written: _1_k.md:24:
+overlay_width='15.90cm', overlay_height='4.13cm'`): every call with an overlay then shows both, and the next build
+takes them as given — change them by hand, or delete `overlay_height` to have the table measured again. A size given in
+the call stays as it is. In Word the overlay is a normal picture, anchored in the first cell (Layout in table cell, in
+front of the text; its name in the Selection Pane holds the place of its call, e.g. `viva overlay @ _1_k.md:24`);
+resized there by hand, it keeps its size when the document is exported again. The table stays on one page. The
+template import writes it for the shapes Word draws over a table's cells, placed from their cell — straight lines
+(Line, Straight Connector), circles and ellipses, rectangles, with their outline and fill (also those of Word's default
+shape style, in the theme's colours) —: one SVG of the table's size in the chapter's picture folder, the shapes where
+and in the order Word draws them (Word keeps no row heights in the file: the import estimates them from the
+paragraphs' spacing and font size), without sizes in the call (the first build writes them); other shapes (a triangle,
+an arrow, a freeform) are reported, not drawn. It writes the converter's own overlay again, too, with both sizes if
+they were measured or given:
+
+```markdown
+{% call table('5.3cm', '5.3cm', '5.3cm', overlay='images/1_cad_systeme/01.svg', overlay_width='15.90cm', overlay_height='5.04cm') %}
+<table>
+  <tr><td>1</td><td>2</td><td>3</td></tr>
+  <tr><td>4</td><td>5</td><td>6</td></tr>
+</table>
+{% endcall %}
+```
+
 #### Pipe tables of each kind
 
 Each kind of table can also be written without HTML, as a pipe table: one line per row, the cells between `|`; in a
 cell `<br>` is a line break (and an empty line, `<br><br>`, a new paragraph in a layout table), a line starting with
 `- ` or `1. ` a list item, and `image()`, `formula()`, `content()` and Markdown work as in an HTML cell. Not possible in
-a pipe table: cells over several rows or columns (`rowspan`, `colspan`), turned or aligned cells (`vertical`,
-`align`, `valign`), a cell over several lines and a `|` in a cell's text — these need an HTML table.
+a pipe table: cells over several rows or columns (`rowspan`, `colspan`), turned, aligned or coloured cells
+(`vertical`, `align`, `valign`, `bgcolor`), a cell over several lines and a `|` in a cell's text — these need an HTML table.
 
 A normal table with a header row (the separator row `| --- |`), its caption and a name for `ref()`; the header row is
 repeated on every page, a list in a cell:
@@ -792,40 +843,42 @@ the template import also for a table in the style Learning Objectives Table), wi
 The line form, `{{ learning_objectives() }}` directly before the table, is the same; in `{% call %}` … `{% endcall %}`
 only the table may stand. The render step links each objective's id: a first cell of only an id `LZ_…` becomes
 `{{ link('https://www.example.com/LZ_1057', 'LZ_1057') }}` (its page; md_render/commands/learning_objectives.py:
-`OBJECTIVE_URL`), any other first cell stays; an id with `link_lo()` after it, too (the calls stay after the link).
+`OBJECTIVE_URL`), any other first cell stays; an id with `link_leo()` after it, too (the calls stay after the link).
 
-### link_lo
+### link_leo
 
-`{{ link_lo('4DB5AA70-18E2-DC4F-9E3C-8C6650BD5BF9') }}`, `{{ link_lo('4DB5AA70-…', 'D004F129-…') }}` — the keys of a
+`{{ link_leo('4DB5AA70-18E2-DC4F-9E3C-8C6650BD5BF9') }}`, `{{ link_leo('4DB5AA70-…', 'D004F129-…') }}` — the keys of a
 learning objective in the database futuremem (link learning objective), in the first cell of its row of
 `learning_objectives()`, right after the number of the objective; each key a GUID of 8-4-4-4-12 hexadecimal digits,
 at least one:
 
 ```markdown
 {% call learning_objectives() %}
-| LZ_1057 {{ link_lo('4DB5AA70-18E2-DC4F-9E3C-8C6650BD5BF9', 'D004F129-989D-18BA-92A8-68F10EB3D8FC') }} | Sie erklären den Aufbau. |
-| LZ_7865 {{ link_lo('1566CE6E-5F41-DDCD-81D2-44E2CBF1D575') }} | Sie benennen Geräte. |
+| LZ_1057 {{ link_leo('4DB5AA70-18E2-DC4F-9E3C-8C6650BD5BF9', 'D004F129-989D-18BA-92A8-68F10EB3D8FC') }} | Sie erklären den Aufbau. |
+| LZ_7865 {{ link_leo('1566CE6E-5F41-DDCD-81D2-44E2CBF1D575') }} | Sie benennen Geräte. |
 {% endcall %}
 ```
 
-The converter writes the keys as the Word comment `link_lo: <key>; <key>` of the author futuremem on the number, as
+The converter writes the keys as the Word comment `link_leo: <key>; <key>` of the author futuremem on the number, as
 the authors write them (author guide, chapter 6.1.3); the PDF shows no comments. Several keys in one call are one
-comment; several calls on one number, `| LZ_1057 {{ link_lo('…') }} {{ link_lo('…', '…') }} |`, one comment each. The
-template import writes such a comment on the number of a learning objective back as `link_lo()`.
+comment; several calls on one number, `| LZ_1057 {{ link_leo('…') }} {{ link_leo('…', '…') }} |`, one comment each. The
+template import writes such a comment on the number of a learning objective back as `link_leo()`. It replaces the
+former `link_lo()`: a call of `link_lo()` is a problem, and the template import reads a Word comment `link_lo: …` as
+an ordinary comment (reported, not written).
 
-`link_lo()` at the end of a heading or a text paragraph links that section (the heading and what follows it, up to
+`link_leo()` at the end of a heading or a text paragraph links that section (the heading and what follows it, up to
 the next heading of the same or a higher level) or that paragraph to the learning objective: after its text, before
 `anchor()` and `uuid()`; several calls are possible:
 
 ```markdown
-## Leistung bei Drehbewegungen {{ link_lo('4DB5AA70-18E2-DC4F-9E3C-8C6650BD5BF9') }} {{ anchor('drehbewegung') }}
+## Leistung bei Drehbewegungen {{ link_leo('4DB5AA70-18E2-DC4F-9E3C-8C6650BD5BF9') }} {{ anchor('drehbewegung') }}
 
-Die Welle eines Motors überträgt ein Drehmoment. {{ link_lo('D004F129-989D-18BA-92A8-68F10EB3D8FC') }}
+Die Welle eines Motors überträgt ein Drehmoment. {{ link_leo('D004F129-989D-18BA-92A8-68F10EB3D8FC') }}
 ```
 
 The converter writes the comment over the whole heading or paragraph (not into the chapter overview of the colour
 band); the template import writes such a comment anywhere in a heading or a text paragraph — also on a few words of
-it — back as `link_lo()` at its end. A `link_lo:` comment elsewhere (a list item, a note, a table cell …) or without a
+it — back as `link_leo()` at its end. A `link_leo:` comment elsewhere (a list item, a note, a table cell …) or without a
 key, and any other comment, the import leaves out, each with a note in `CONVERT.md`. Errors: no key, a key that is no
 GUID, a keyword argument `keys=`, a call anywhere else (inside the text of a paragraph, not at its end, in a list item,
 a box, a `note()` or `frame()`, another cell, a normal table, before the number or with text after it).

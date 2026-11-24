@@ -31,7 +31,7 @@ from pathlib import Path
 class Spec:
     params: tuple[str, ...] = ()      # in positional order
     required: tuple[str, ...] = ()
-    varargs: str | None = None        # *widths of table(), *keys of link_lo()
+    varargs: str | None = None        # *widths of table(), *keys of link_leo()
     kwonly: tuple[str, ...] = ()
     where: str = 'chapter'            # 'manifest' | 'both' | 'chapter'
     forms: str = 'expr'               # 'expr' ({{ }}) | 'call' ({% call %}) | 'both'
@@ -66,9 +66,10 @@ SPECS: dict[str, Spec] = {
     'ref': Spec(('name', 'show'), ('name',)),
     'cite': Spec(('key', 'page'), ('key',)),
     'formula': Spec(('tex', 'align'), ('tex',)),
-    'table': Spec(varargs='widths', kwonly=('type', 'anchor', 'numbered'), forms='both', own_line=True),
+    'table': Spec(varargs='widths', kwonly=('type', 'anchor', 'numbered', 'overlay', 'overlay_width',
+                                            'overlay_height'), forms='both', own_line=True),
     'learning_objectives': Spec(varargs='widths', forms='both', own_line=True),
-    'link_lo': Spec(varargs='keys'),
+    'link_leo': Spec(varargs='keys'),
     'qr_code': Spec(('text', 'size', 'color', 'alignment'), own_line=True),
     'grid': Spec(('spacing', 'n_width', 'n_height', 'thickness', 'color', 'alignment'), own_line=True),
     'label': Spec(('text', 'icon', 'link', 'offset_x', 'offset_y'), ('text',), own_line=True),
@@ -79,7 +80,7 @@ SPECS: dict[str, Spec] = {
     'uuid': Spec(('uuid',), ('uuid',)),
 }
 ONCE = {'document', 'logo', 'watermark', 'bibliography'}
-RENAMED = {'title': "document('…')"}   # a former command: its new call
+RENAMED = {'title': "document('…')", 'link_lo': "link_leo('…')"}   # a former command: its new call
 STATES = ('development', 'production')   # document(state=…)
 TYPES = ('theory', 'exercise', 'exam_assignment', 'report')   # document(type=…)
 CHAPTER_CALL = re.compile(r'(?<!\w)chapter\s*\(')   # a chapter( call, not subchapter(
@@ -115,6 +116,7 @@ HTML_TAGS = {'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'strong', 'b'
 CELL_LOOKS = {'vertical': ('up', 'down'), 'align': ('left', 'center', 'right'),
               'valign': ('top', 'middle', 'center', 'bottom')}
 ROW_HEIGHT_RE = re.compile(r'^\d+(?:[.,]\d+)?\s*(?:cm|mm|pt)$')
+BGCOLOR_RE = re.compile(r'^#[0-9A-Fa-f]{6}$')   # a cell's bgcolor (as color())
 CELL_LIST_RE = re.compile(r'^([*+]|\d+\))\s')
 
 
@@ -386,7 +388,7 @@ class Doc:
         for k, v in kws:
             if k not in allowed:
                 self.report.error(self.path, ln + 1, f'`{name}()` has no argument `{k}=`'
-                                  + (' (the keys go by position)' if name == 'link_lo' else ''))
+                                  + (' (the keys go by position)' if name == 'link_leo' else ''))
             elif k in args:
                 self.report.error(self.path, ln + 1, f'`{name}()`: argument `{k}` given twice')
             else:
@@ -475,9 +477,9 @@ class Doc:
 class HtmlTableScan(HTMLParser):
     """The findings of one HTML table (its text with the calls masked: Doc.flat_lines) as (line from 1, level,
     message): what the converter rejects (other tags, a table in a cell, text outside of a cell, a vertical, align or
-    valign of another value, a solution with a value, a height that is no length in cm, mm or pt) an error; a row of
-    only turned cells without a height (LibreOffice leaves it out of the PDF) and a cell line starting with «+ », «* »
-    or «1) » (a list item, which the author rarely means) a warning."""
+    valign of another value, a solution with a value, a bgcolor that is no #RRGGBB, a height that is no length in cm,
+    mm or pt) an error; a row of only turned cells without a height (LibreOffice leaves it out of the PDF) and a cell
+    line starting with «+ », «* » or «1) » (a list item, which the author rarely means) a warning."""
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -520,6 +522,9 @@ class HtmlTableScan(HTMLParser):
                                       f'{", ".join(f"`{v}`" for v in values)}')
             if a.get('solution'):
                 self.add('error', f'`solution="{a["solution"]}"` is not possible: `solution` takes no value')
+            if 'bgcolor' in a and not BGCOLOR_RE.match((a['bgcolor'] or '').strip()):
+                self.add('error', f'`bgcolor="{a["bgcolor"] or ""}"` is not possible: a colour `#RRGGBB` '
+                                  f'(e.g. `bgcolor="#A6D4DC"`)')
             self.row[2].append('vertical' in a)
         elif not self.cell:
             self.add('error', f'`<{tag}>` is not possible outside of a cell')
@@ -604,7 +609,7 @@ class Checker:
         self.state = 'production'   # document(state=…): in development a reference without target only warns
         self.indexes: list[tuple[Path, int]] = []   # each index() of a chapter: its file and line
         self.glossar_comment: int | None = None     # the manifest line of a glossar() commented out
-        self.table_ctx: dict[int, Call] = {}   # line of a table row -> its table()/learning_objectives() call
+        self.table_ctx: dict[int, Call] = {}   # line of a table row -> its table()/learning_objectives() call (per file)
         self.table_caption: dict[int, bool] = {}
 
     # ---- small validators
@@ -810,6 +815,7 @@ class Checker:
                 self.r.error(doc.path, c.line + 1, 'no `{% call %}` in the manifest')
 
     def check_content(self, doc: Doc, kind: str):
+        self.table_ctx = {}   # its line numbers are this file's: a table of another file must not claim them
         for c in doc.calls:
             self.check_call(doc, c, kind)
         for ln, alone, name in doc.endcalls:
@@ -1076,6 +1082,10 @@ class Checker:
         if not lo:
             self.choice_arg(doc, c, 'type', ('default', 'pictures', 'layout'))
             self.bool_arg(doc, c, 'numbered')
+            self.file_arg(doc, c, 'overlay')
+            for key in ('overlay_width', 'overlay_height'):
+                self.len_arg(doc, c, key, ('cm', 'mm', 'pt'))
+                self.need(a.get(key) is None or a.get('overlay') is not None, doc, c, f'`{key}` needs `overlay`')
         start = c.end_line + 1 if c.form == 'expr' else doc.next_nonblank(c.end_line)
         caption, kind, first, last, ncols = doc.table_at(start)
         if kind is None:
@@ -1106,14 +1116,14 @@ class Checker:
 
     c_learning_objectives = c_table
 
-    def c_link_lo(self, doc, c):
+    def c_link_leo(self, doc, c):
         keys = c.args.get('keys', [])
         self.need(keys, doc, c, 'at least one key')
         for k in keys:
             self.need(isinstance(k, str) and GUID_RE.match(k), doc, c, f'key {k!r} is no GUID 8-4-4-4-12')
         table = self.table_ctx.get(c.line)
         if table is None or table.name != 'learning_objectives':
-            self.need(table is None and self.link_lo_at_end(doc, c), doc, c,
+            self.need(table is None and self.link_leo_at_end(doc, c), doc, c,
                       'only in the first cell of a `learning_objectives()` row, after the number, or at the end of a '
                       'heading or a text paragraph')
             return
@@ -1126,9 +1136,9 @@ class Checker:
 
     BLOCK_START_RE = re.compile(r'\s*(#{1,6}\s|[-*+]\s|\d+[.)]\s|>|\||\{\{|\{%|<!--|```|<table)')
 
-    def link_lo_at_end(self, doc, c) -> bool:
-        """`link_lo()` at the end of a heading or a text paragraph (the section or paragraph belongs to that learning
-        objective): text before it, after it only `link_lo()`, `anchor()` and `uuid()`; a paragraph's last line; not
+    def link_leo_at_end(self, doc, c) -> bool:
+        """`link_leo()` at the end of a heading or a text paragraph (the section or paragraph belongs to that learning
+        objective): text before it, after it only `link_leo()`, `anchor()` and `uuid()`; a paragraph's last line; not
         a list item, a box (`>`), a table cell or a paragraph of `note()`/`frame()` (as the render step)."""
         raw = doc.lines[c.line]
         if c.alone or c.end_line != c.line or doc.in_cell(c.line) or raw.lstrip().startswith('>') \
@@ -1138,7 +1148,7 @@ class Checker:
         before = re.sub(r'x{5,}', '', re.sub(r'^\s*#{1,6}\s+', '', line[:c.start - start]))
         after = re.sub(r'x{5,}', '', line[c.end - start:])
         later = [o for o in doc.calls if o.line == c.line and o.start > c.start]
-        if not before.strip() or after.strip() or any(o.name not in ('link_lo', 'anchor', 'uuid') for o in later):
+        if not before.strip() or after.strip() or any(o.name not in ('link_leo', 'anchor', 'uuid') for o in later):
             return False
         nxt = c.line + 1
         return bool(HEADING_RE.match(raw)) or doc.is_blank(nxt) or bool(self.BLOCK_START_RE.match(doc.lines[nxt]))

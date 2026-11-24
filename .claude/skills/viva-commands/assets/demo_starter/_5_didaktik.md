@@ -4,13 +4,13 @@ Lehrmittel gliedern den Stoff mit wiederkehrenden Elementen: Lernziele am Anfang
 
 ## Lernziele
 
-Ein Etikett mit `label()` kündigt die Lernziele an; `learning_objectives()` macht die folgende Tabelle zur Lernzieltabelle, ein Lernziel pro Zeile. Die Nummer `LZ_…` wird ein Link auf das Lernziel; `link_lo()` nach der Nummer verknüpft es mit seinen Schlüsseln in der Datenbank futuremem, als Word-Kommentar auf der Nummer.
+Ein Etikett mit `label()` kündigt die Lernziele an; `learning_objectives()` macht die folgende Tabelle zur Lernzieltabelle, ein Lernziel pro Zeile. Die Nummer `LZ_…` wird ein Link auf das Lernziel; `link_leo()` nach der Nummer verknüpft es mit seinen Schlüsseln in der Datenbank futuremem, als Word-Kommentar auf der Nummer.
 
 {{ label('Lernziele', icon='learning_objective') }}
 
 {% call learning_objectives() %}
-| LZ_0101 {{ link_lo('51620B64-F785-4D0C-B5B3-EEFF051576CA') }} | Sie schreiben ein Kapitel in Markdown mit Überschriften, Listen und Verweisen. |
-| LZ_0102 {{ link_lo('E27A4E68-2441-44A1-9591-C228C4665F45', '3082EC75-46DA-4614-B452-1F4F9B1AD77A') }} | Sie setzen Bilder, Tabellen und Formeln mit den passenden Befehlen. |
+| LZ_0101 {{ link_leo('51620B64-F785-4D0C-B5B3-EEFF051576CA') }} | Sie schreiben ein Kapitel in Markdown mit Überschriften, Listen und Verweisen. |
+| LZ_0102 {{ link_leo('E27A4E68-2441-44A1-9591-C228C4665F45', '3082EC75-46DA-4614-B452-1F4F9B1AD77A') }} | Sie setzen Bilder, Tabellen und Formeln mit den passenden Befehlen. |
 | LZ_0103 | Sie gestalten Hinweise, Rahmen und Aufgaben mit den Formatvorlagen der Vorlage. |
 {% endcall %}
 
@@ -19,17 +19,21 @@ Die Spaltenbreiten der Lernzieltabelle sind wählbar, hier in der Zeilenform dir
 {{ learning_objectives('2.5cm', '13.5cm') }}
 | LZ_0104 | Sie erstellen aus dem Markdown ein Word-Dokument und ein PDF. |
 
+Am Ende eines Titels oder Absatzes verknüpft `link_leo()` den ganzen Abschnitt oder diesen Absatz mit einem Lernziel; der Word-Kommentar steht dann über dem ganzen Titel oder Absatz. So gehört dieser Absatz zum Lernziel LZ_0102. {{ link_leo('E27A4E68-2441-44A1-9591-C228C4665F45') }}
+
 {% raw %}
 ```markdown
 {{ label('Lernziele', icon='learning_objective') }}
 
 {% call learning_objectives() %}
-| LZ_0101 {{ link_lo('51620B64-F785-4D0C-B5B3-EEFF051576CA') }} | Sie schreiben ein Kapitel in Markdown … |
+| LZ_0101 {{ link_leo('51620B64-F785-4D0C-B5B3-EEFF051576CA') }} | Sie schreiben ein Kapitel in Markdown … |
 | LZ_0103 | Sie gestalten Hinweise, Rahmen und Aufgaben … |
 {% endcall %}
 
 {{ learning_objectives('2.5cm', '13.5cm') }}
 | LZ_0104 | Sie erstellen aus dem Markdown ein Word-Dokument und ein PDF. |
+
+So gehört dieser Absatz zum Lernziel LZ_0102. {{ link_leo('E27A4E68-2441-44A1-9591-C228C4665F45') }}
 ```
 {% endraw %}
 

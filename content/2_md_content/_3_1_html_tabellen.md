@@ -137,3 +137,32 @@ Eine Kopfzeile nur aus gedrehten Zellen hat eine Zeilenhöhe «Mindestens» (Tab
   </tr>
 </table>
 {% endcall %}
+
+## Farbige Zellen und Overlay {{ uuid('73c20584-391b-401c-b5aa-2ccf92d8fe87') }}
+
+`bgcolor` auf `<td>` oder `<th>` gibt einer Zelle eine Hintergrundfarbe, `#RRGGBB` wie bei `color()`; in Word ist es die Schattierung der Zelle. `overlay` im Aufruf von `table()` legt ein Bild über die ganze Tabelle, etwa ein transparentes SVG mit den Lösungslinien einer Zuordnungsaufgabe: Seine linke obere Ecke ist die der Tabelle, es wird auf die Grösse der Tabelle gestreckt, und die Tabelle bleibt auf einer Seite. {{ uuid('9cea5ace-43b7-4c36-8bf2-fb36a72d8e4e') }}
+
+{% call table('4.5cm', '3cm', '*', overlay='images/3_tabellen/zuordnung.svg', overlay_width='16.00cm', overlay_height='2.77cm', uuid='ee1f6eb7-09c9-4c02-a4e2-87066d887ff3') %}
+Tabelle: Zuordnung mit farbigen Zellen und Lösungslinien
+<table>
+  <thead>
+    <tr><th>Begriff</th><th></th><th>Bedeutung</th></tr>
+  </thead>
+  <tr><td bgcolor="#E2F0D9">CAD</td><td></td><td bgcolor="#DDEBF7">Rechnergestützte Fertigung</td></tr>
+  <tr><td bgcolor="#E2F0D9">CAM</td><td></td><td bgcolor="#DDEBF7">Produktdatenmanagement</td></tr>
+  <tr><td bgcolor="#E2F0D9">PDM</td><td></td><td bgcolor="#DDEBF7">Rechnergestütztes Konstruieren</td></tr>
+</table>
+{% endcall %}
+
+Ohne `overlay_height` misst der PDF-Schritt die Höhe der Tabelle; danach schreibt der Build `overlay_width` und `overlay_height` in den Aufruf, wie oben zu sehen, und nimmt sie beim nächsten Mal so. Beide lassen sich von Hand anpassen; ohne `overlay_height` wird wieder gemessen. Zeichnen Sie das SVG so breit und so hoch wie die Tabelle. Der Word-Import schreibt ein solches SVG aus den Linien, Kreisen und Rechtecken, die in Word über eine Tabelle gezeichnet sind. {{ uuid('4bda41b0-39e0-4b63-9470-3b82f42c2a46') }}
+
+{% raw %}
+```markdown
+{% call table('4.5cm', '3cm', '*', overlay='images/zuordnung.svg', overlay_width='16.00cm', overlay_height='2.77cm') %}
+Tabelle: Zuordnung mit farbigen Zellen und Lösungslinien
+<table>
+  <tr><td bgcolor="#E2F0D9">CAD</td><td></td><td bgcolor="#DDEBF7">Rechnergestützte Fertigung</td></tr>
+</table>
+{% endcall %}
+```
+{% endraw %}
