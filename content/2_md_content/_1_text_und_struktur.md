@@ -1,5 +1,13 @@
 # Text und Struktur {{ anchor('text_und_struktur', uuid='4f59c2f2-2d52-467c-8242-0f13af3bdddc') }} {{ uuid('fb121547-8903-465e-a955-b3f7a8d8c414') }}
 
+{{ label('Hinweis für Autorinnen und Autoren', icon='bell', offset_x='4mm', offset_y='50%', uuid='057d489d-f174-40fb-b20a-d7b7ed7e1dcf') }}
+
+{% call note(uuid='88255465-8e37-475a-b660-4fbfd71e8814') %}
+**Kapitelübersicht:** Passen Sie im Farbband nur den Kapiteltitel an. Die Unterkapitel mit ihren Seitenzahlen setzt die Produktion; um sie kümmern Sie sich nicht.
+
+**Seitenzahlen:** Um die Seitenzahlen kümmern Sie sich nicht: Die Seitenzahlen im Inhaltsverzeichnis, in den Kapitelübersichten, in Querverweisen, im Stichwortverzeichnis und in der Fusszeile setzt die Produktion.
+{% endcall %}
+
 Dieses Kapitel zeigt, wie Sie Fliesstext, Überschriften, Listen und Verweise im {{ index('Markdown', uuid='25b2a903-995e-478c-b00e-8aad6bfccfcb') }}Markdown schreiben. Jeder Abschnitt zeigt zuerst das Ergebnis und darunter den Markdown-Code, der es erzeugt. Die Befehle in doppelten geschweiften Klammern prüft das Rendern; ein Fehler nennt Datei und Zeile. {{ uuid('7999c8af-1316-4bfb-aa6f-85ad1d91777c') }}
 
 ## Überschriften {{ anchor('ueberschriften', uuid='6233fe11-0c52-462a-9025-81f13336e539') }} {{ uuid('ccfdbe0a-1a9d-49b0-b7e3-707126d5c11f') }}
