@@ -32,6 +32,33 @@ type='layout' stellt Text und Bilder in Spalten nebeneinander, ohne Linien; der 
 
 {% raw %}{% call table('8.5cm', '7.5cm', type='layout') %}{% endraw %}<br>| Das Diagramm rechts …<br><br>In einer Layouttabelle … | {% raw %}{{ image('images/diagramm.svg', width='7cm', title='Monatswerte als Balkendiagramm') }}{% endraw %} |<br>{% raw %}{% endcall %}{% endraw %} {{ uuid('992c7e3d-f7a5-4a02-8c69-cb74f1f9138f') }}
 
+## Pfeile über einem Bild in der Tabelle
+
+Steht ein Bild allein in seiner Zelle, kann es wie im Text ein overlay tragen: ein durchsichtiges SVG mit Pfeilen, das von der linken oberen Ecke des Bildes aus liegt und über den Zellenrand hinausreichen darf, hier bis in die Textspalte. indent rückt den Text dieser Spalte um 1 cm ein, damit der Pfeil ihn nicht verdeckt:
+
+{% call table('8cm', '8cm', type='layout') %}
+<table>
+  <tr>
+    <td>{{ image('images/3_tabellen/04.png', width='7cm', overlay='images/3_tabellen/bauteil_hinweis.svg', overlay_width='8.50cm', overlay_height='4.38cm') }}</td>
+    <td indent="1cm">Die markierte Bohrung nimmt die Schraube M8 auf.<br><br>Der Pfeil beginnt in dieser Spalte; der Einzug hält den Text frei.</td>
+  </tr>
+</table>
+{% endcall %}
+
+{% raw %}
+```markdown
+{% call table('8cm', '8cm', type='layout') %}
+<table>
+  <tr>
+    <td>{{ image('images/bauteil.png', width='7cm', overlay='images/bauteil_hinweis.svg', overlay_width='8.50cm',
+                 overlay_height='4.38cm') }}</td>
+    <td indent="1cm">Die markierte Bohrung nimmt die Schraube M8 auf.<br><br>Der Pfeil beginnt …</td>
+  </tr>
+</table>
+{% endcall %}
+```
+{% endraw %}
+
 ## Inhalte in Zellen kennzeichnen {{ uuid('7f86dc98-99f7-4e78-a775-25ec51fef7ec') }}
 
 content() gibt einem Teil einer Zelle einen Identifikator, so wie uuid() einem Absatz; eine Zelle kann mehrere enthalten: {{ uuid('34695315-2eed-41d3-85df-0c1eb27fecd4') }}

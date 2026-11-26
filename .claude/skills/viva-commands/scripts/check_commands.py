@@ -39,7 +39,8 @@ class Spec:
 
 
 IMAGE_PARAMS = ('src', 'width', 'height', 'scale', 'align', 'border', 'crop', 'wrap', 'title', 'numbered',
-                'anchor', 'alt_text', 'rotate')
+                'anchor', 'alt_text', 'rotate', 'overlay', 'overlay_width', 'overlay_height', 'overlay_x', 'overlay_y')
+OVERLAY_ARGS = ('overlay_width', 'overlay_height', 'overlay_x', 'overlay_y')
 
 SPECS: dict[str, Spec] = {
     'document': Spec(('title', 'state', 'type'), ('title',), where='manifest'),
@@ -82,7 +83,8 @@ SPECS: dict[str, Spec] = {
 ONCE = {'document', 'logo', 'watermark', 'bibliography'}
 RENAMED = {'title': "document('…')", 'link_lo': "link_leo('…')"}   # a former command: its new call
 STATES = ('development', 'production')   # document(state=…)
-TYPES = ('theory', 'exercise', 'exam_assignment', 'report')   # document(type=…)
+TYPES = ('subject_knowledge', 'self_check', 'activation_tasks', 'tasks', 'exercises', 'exams',
+         'assignment_templates', 'author_assignments')   # document(type=…)
 CHAPTER_CALL = re.compile(r'(?<!\w)chapter\s*\(')   # a chapter( call, not subchapter(
 GLOSSAR_CALL = re.compile(r'(?<!\w)glossar\s*\(')
 JINJA_COMMENT = re.compile(r'\{#.*?#\}', re.S)
@@ -477,7 +479,7 @@ class Doc:
 class HtmlTableScan(HTMLParser):
     """The findings of one HTML table (its text with the calls masked: Doc.flat_lines) as (line from 1, level,
     message): what the converter rejects (other tags, a table in a cell, text outside of a cell, a vertical, align or
-    valign of another value, a solution with a value, a bgcolor that is no #RRGGBB, a height that is no length in cm,
+    valign of another value, a solution with a value, a bgcolor that is no #RRGGBB, an indent or a height that is no length in cm,
     mm or pt) an error; a row of only turned cells without a height (LibreOffice leaves it out of the PDF) and a cell
     line starting with «+ », «* » or «1) » (a list item, which the author rarely means) a warning."""
 
@@ -525,6 +527,9 @@ class HtmlTableScan(HTMLParser):
             if 'bgcolor' in a and not BGCOLOR_RE.match((a['bgcolor'] or '').strip()):
                 self.add('error', f'`bgcolor="{a["bgcolor"] or ""}"` is not possible: a colour `#RRGGBB` '
                                   f'(e.g. `bgcolor="#A6D4DC"`)')
+            if 'indent' in a and not ROW_HEIGHT_RE.match((a['indent'] or '').strip().lower()):
+                self.add('error', f'`indent="{a["indent"] or ""}"` of a cell is not possible: a length in cm, mm or pt '
+                                  f'(e.g. `indent="1.25cm"`)')
             self.row[2].append('vertical' in a)
         elif not self.cell:
             self.add('error', f'`<{tag}>` is not possible outside of a cell')
@@ -585,6 +590,21 @@ class HtmlTableScan(HTMLParser):
 
 
 # --------------------------------------------------------------------------- value checks
+
+CELL_DELIMITER = re.compile(r'(?<!\\)\||<br\s*/?>|</?t[dh]\b[^>]*>|</?p\b[^>]*>', re.I)
+
+
+def alone_in_cell(doc, c) -> bool:
+    """The call stands alone on its line of a table cell: only white space between it and the delimiters around it
+    (a pipe, <td>, </td>, <th>, <br>, <p>), as the render step requires for image(overlay=…) in a cell."""
+    start = doc.line_starts[c.line]
+    end = doc.line_starts[c.line + 1] - 1 if c.line + 1 < len(doc.line_starts) else len(doc.masked)
+    line, s, e = doc.masked[start:end], c.start - start, c.end - start
+    before = [d.end() for d in CELL_DELIMITER.finditer(line) if d.end() <= s]
+    after = [d.start() for d in CELL_DELIMITER.finditer(line) if d.start() >= e]
+    left, right = (before[-1] if before else 0), (after[0] if after else len(line))
+    return not (line[left:s].strip(' \t>') or line[e:right].strip())
+
 
 def length_cm(value, units: tuple[str, ...]):
     if not isinstance(value, str):
@@ -984,10 +1004,26 @@ class Checker:
             self.need(a['rotate'] in (90, 180, 270, -90, -180, -270), doc, c, '`rotate`: ±90, ±180 or ±270')
         if a.get('anchor') is not None:
             self.register_anchor(doc, c, a['anchor'])
+        self.file_arg(doc, c, 'overlay')
+        for key in ('overlay_width', 'overlay_height'):
+            n = self.len_arg(doc, c, key, ('cm', 'mm', 'pt'))
+            if n is not None:
+                self.need(n > 0, doc, c, f'`{key}` must not be 0')
+        for key in ('overlay_x', 'overlay_y'):
+            v = a.get(key)
+            if v is not None:
+                self.need(isinstance(v, str) and length_cm(v.strip().removeprefix('-').strip(), ('cm', 'mm', 'pt'))
+                          is not None, doc, c, f'`{key}={v!r}`: a length in cm, mm, pt (negative allowed)')
+        for key in OVERLAY_ARGS:
+            self.need(a.get(key) is None or a.get('overlay') is not None, doc, c, f'`{key}` needs `overlay`')
+        if a.get('overlay') is not None:
+            self.need(not a.get('wrap'), doc, c, '`overlay` not with `wrap`')
         if doc.in_cell(c.line):
             table = self.table_ctx.get(c.line)
             layout = table is not None and table.args.get('type') == 'layout'
             self.need(not a.get('wrap'), doc, c, '`wrap` in a table cell')
+            self.need(a.get('overlay') is None or alone_in_cell(doc, c), doc, c,
+                      '`overlay` in a table cell only for a picture alone on its line of the cell')
             if not layout:
                 self.need(not a.get('title') and 'numbered' not in a, doc, c,
                           '`title`/`numbered` in a table cell only in a `table(type=\'layout\')`')

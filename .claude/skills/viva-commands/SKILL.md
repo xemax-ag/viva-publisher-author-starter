@@ -1,6 +1,6 @@
 ---
 name: viva-commands
-description: Format, write, convert and check the Markdown content of a viva publisher document (template textbook_2026_V02 → Word → PDF) with the render-step commands of COMMANDS.md — {{ image() }}, {{ table() }}, {{ formula() }}, {{ ref() }}/{{ anchor() }}, {{ cite() }}, {{ footnote() }}, {{ index() }}, {{ label() }}, {{ note() }}, {{ frame() }}, {{ learning_objectives() }}/{{ link_leo() }}, {{ uuid() }} and the manifest _main_.md with {{ document() }} (title, state development/production, type theory/exercise/exam_assignment/report) and {{ subchapter() }} (a chapter split into files). Use this skill whenever the user wants to create or edit a manifest, chapter, cover, impressum, management summary, glossar or quellen file (e.g. under 2_md_content/), turn plain Markdown, Word-exported or pasted text into this format, add pictures, tables, formulas, learning objectives, Hinweis/Beispiel/Aufgabe boxes or cross references, or find and fix render-step problems — even if they don't mention COMMANDS.md or "commands".
+description: Format, write, convert and check the Markdown content of a viva publisher document (template textbook_2026_V02 → Word → PDF) with the render-step commands of COMMANDS.md — {{ image() }}, {{ table() }}, {{ formula() }}, {{ ref() }}/{{ anchor() }}, {{ cite() }}, {{ footnote() }}, {{ index() }}, {{ label() }}, {{ note() }}, {{ frame() }}, {{ learning_objectives() }}/{{ link_leo() }}, {{ uuid() }} and the manifest _main_.md with {{ document() }} (title, state development/production, type subject_knowledge/exercises/exams/…) and {{ subchapter() }} (a chapter split into files). Use this skill whenever the user wants to create or edit a manifest, chapter, cover, impressum, management summary, glossar or quellen file (e.g. under 2_md_content/), turn plain Markdown, Word-exported or pasted text into this format, add pictures, tables, formulas, learning objectives, Hinweis/Beispiel/Aufgabe boxes or cross references, or find and fix render-step problems — even if they don't mention COMMANDS.md or "commands".
 ---
 
 # viva-commands: Markdown for the viva publisher converter
@@ -48,10 +48,10 @@ may edit.
    | `_main_.md` | manifest: document (title, state, type), watermark, cover with picture, imprint, management summary, TOC, chapters with opener pictures, a chapter with two subchapters, lists of figures/tables, glossar, bibliography, keyword index |
    | `cover.md`, `impressum.md`, `management_summary.md`, `glossar.md`, `quellen.md` | the formats of these files |
    | `_1_text_und_struktur.md` | headings + `anchor()`, bold/italic, `color()`, `<br>`, escapes, lists, `{% call list() %}`, `link()`, `ref()`, `footnote()`, `cite()`, `index()`, `uuid()`, comments, code blocks, `page_break()` |
-   | `_2_bilder.md` | `image()` with every option, Markdown picture, placeholder `((…))`, `qr_code()`, `grid()` |
+   | `_2_bilder.md` | `image()` with every option (also `overlay`: arrows over a picture, reaching beside it), Markdown picture, placeholder `((…))`, `qr_code()`, `grid()` |
    | `_3_0_tabellen.md` | pipe tables, `Tabelle:` captions, `table()` widths/anchor/`numbered`; the chapter of the two subchapters below |
-   | `_3_1_html_tabellen.md` | a subchapter (no `#` heading, starts at `##`): how `subchapter()` and `document(state=…)` work, HTML tables, colspan/rowspan, turned cells, row `height` |
-   | `_3_2_bilder_in_tabellen.md` | a subchapter: `type='pictures'`, `type='layout'`, `content()` |
+   | `_3_1_html_tabellen.md` | a subchapter (no `#` heading, starts at `##`): how `subchapter()` and `document(state=…)` work, HTML tables, colspan/rowspan, turned cells, row `height`, `bgcolor`, a table's `overlay` |
+   | `_3_2_bilder_in_tabellen.md` | a subchapter: `type='pictures'`, `type='layout'`, a cell picture with its `overlay` beside a cell with `indent`, `content()` |
    | `_4_formeln.md` | `formula()` inline, on its own line, `align`, LaTeX examples |
    | `_5_didaktik.md` | `label()` + icons, `learning_objectives()` + `link_leo()` (in the table and at the end of a paragraph), `note()`, `frame()`, boxes `> [!AUFGABE]` etc., Selbstkontrolle |
 
@@ -111,8 +111,9 @@ escapes (`3\. Schritt`, `\# kein Titel`, `2\*3`). For everything else:
 | «siehe Abbildung 3 / Tabelle 2 / Abschnitt 1.2» | `{{ ref('abb_aufbau') }}` (`'title'`, `'page'` for title or page) + an anchor on the target. Never hard-code numbers. |
 | table + «Tabelle 2: Werte» | `Tabelle: Werte` directly above the table (no blank line), `{{ table(…widths…) }}` or `{% call table(…) %}` around it |
 | merged cells, multi-line cells, `\|` in a cell | an HTML `<table>` (pipe tables cannot do these) |
-| a solution in a table cell (red), an aligned, turned or coloured cell | on a `<td>`/`<th>` of an HTML table: `solution` without a value (`<td solution>X</td>`: the cell's text in the style Solutions, red by the template), `align="center"`/`"right"`, `valign="middle"`/`"bottom"`, `vertical="up"`/`"down"`, `bgcolor="#A6D4DC"` (the cell's background, `#RRGGBB`) |
+| a solution in a table cell (red), an aligned, turned, coloured or indented cell | on a `<td>`/`<th>` of an HTML table: `solution` without a value (`<td solution>X</td>`: the cell's text in the style Solutions, red by the template), `align="center"`/`"right"`, `valign="middle"`/`"bottom"`, `vertical="up"`/`"down"`, `bgcolor="#A6D4DC"` (the cell's background, `#RRGGBB`), `indent="1.25cm"` (the cell's text indented on the left) |
 | lines or circles drawn over a table (a path from cell to cell, a marked cell) | `overlay='images/…/01.svg'` in its `table()` call: a transparent SVG over the whole table, from its top-left corner (an SVG of your own is stretched to the table, the Word import's is fitted: its circles stay round); without `overlay_height` the PDF step measures the table, and the build writes `overlay_width` and `overlay_height` into the call (each it lacks): every overlay call then shows both, change them by hand |
+| arrows, lines, circles or text drawn over a picture (pointing at a detail of a screenshot) | `overlay='images/…/03.svg'` in its `image()` call: a transparent SVG over the picture from its top-left corner, `overlay_x`/`overlay_y` move it (negative: left/up; where it sticks out above or below, the picture gets that room); its size defaults to the picture's drawn size, and the build writes `overlay_width` and `overlay_height` into the call; not with `wrap`; in a table cell only for a picture alone on its line of the cell (placed from the picture, it may reach over the cell's edge). Arrows that are part of the picture file stay in the file |
 | a header row of only turned cells (criteria written upwards) | `<tr height="4cm">`, as high as its longest turned text: without a height LibreOffice leaves such a row out of the PDF |
 | a cell line starting with `+ `, `- `, `* ` or `1. ` that is no list item (`+ ja`, `- nein`) | escape its first character: `\+ ja`, `\- nein` (else the line becomes a bullet or numbered item) |
 | pictures side by side / text beside a picture | `{% call table(…, type='pictures') %}` / `type='layout'` |
@@ -155,9 +156,11 @@ These are the mistakes the render step most often rejects. The full lists are in
   fixed widths add up to at most the 16 cm text column. `anchor=` and `numbered=False` need the `Tabelle:` line.
   Tables with `type='pictures'` or `type='layout'` have no `Tabelle:` line. An HTML table takes only the tags of
   COMMANDS.md (no `<u>`, no table in a cell, no text outside a cell); on a cell `vertical` is `up`/`down`, `align`
-  `left`/`center`/`right`, `valign` `top`/`middle`/`bottom`, `bgcolor` `#RRGGBB`, `solution` has no value; `height`
-  on a `<tr>` is a length in `cm`/`mm`/`pt`. `overlay=` names an existing file (relative to the calling file);
-  `overlay_width=` and `overlay_height=` are lengths in `cm`/`mm`/`pt` and need `overlay=`.
+  `left`/`center`/`right`, `valign` `top`/`middle`/`bottom`, `bgcolor` `#RRGGBB`, `indent` a length in
+  `cm`/`mm`/`pt`, `solution` has no value; `height` on a `<tr>` is a length in `cm`/`mm`/`pt`. `overlay=` names an existing file (relative to the calling file);
+  `overlay_width=` and `overlay_height=` are lengths in `cm`/`mm`/`pt` and need `overlay=`. The same for
+  `image(overlay=…)`, plus `overlay_x=`/`overlay_y=` (lengths, negative allowed); an image overlay is not possible
+  with `wrap`, and in a table cell only for a picture alone on its line of the cell.
 - **Pictures.** Paths are relative to the calling file (a leading `/` means relative to the manifest folder) and
   the file must exist. `scale` cannot be combined with `width`/`height`. `numbered`/`anchor` only work with
   `title`. In a table cell, `wrap`/`title` are not allowed, except `title` inside `type='layout'`.
@@ -177,8 +180,9 @@ These are the mistakes the render step most often rejects. The full lists are in
   commented out (`{# {{ chapter(…) }} #}`) to build only the chapter being edited, and a reference whose target is
   then missing is only a warning: a `ref()` without its anchor (the Word document shows `??`), a `cite()` without
   `bibliography()` or entry (`[?]`), an `index()` without `keyword_index()`, a `glossar()` commented out (its terms
-  are not linked). With `state='production'` (the default) each is an error. `type` says what kind of document it
-  is: `'theory'` (default), `'exercise'`, `'exam_assignment'` or `'report'`. The former `title()` no longer exists. A `subchapter()` stands
+  are not linked). With `state='production'` (the default) each is an error. `type` says what kind of content the
+  document holds: `'subject_knowledge'` (default, Fachwissen), `'self_check'`, `'activation_tasks'`, `'tasks'`,
+  `'exercises'`, `'exams'`, `'assignment_templates'` or `'author_assignments'`. The former `title()` no longer exists. A `subchapter()` stands
   right after its `chapter()` or another `subchapter()`; commenting out the `chapter()` line leaves out its
   subchapters too (they are never appended to the chapter before it).
 

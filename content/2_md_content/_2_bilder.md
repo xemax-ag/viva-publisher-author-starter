@@ -52,6 +52,21 @@ Mit numbered=False steht nur der Titel unter dem Bild, ohne «Abbildung n:». ro
 
 {% raw %}{{ image('images/diagramm.svg', width='7cm', rotate=-90, title='Monatswerte, um 90 Grad gedreht', numbered=False) }}{% endraw %} {{ uuid('5928fb3c-b0fa-4066-a5fe-f470f47919a4') }}
 
+## Pfeile und Text über dem Bild
+
+Mit overlay liegt ein zweites Bild über dem Bild, meist ein durchsichtiges SVG mit Pfeilen, Kreisen und Text. Seine linke obere Ecke ist die des Bildes, overlay_x und overlay_y verschieben sie; ragt es oben oder unten über das Bild hinaus, erhält das Bild dort Platz. Ohne overlay_width und overlay_height ist es so gross wie das Bild; der Build schreibt beide in den Aufruf. Hier ragt es rechts 3 cm über das Bild hinaus:
+
+{{ image('images/2_bilder/03.png', width='8cm', overlay='images/2_bilder/bauteil_pfeile.svg', overlay_width='11.00cm', overlay_height='5.00cm', title='Flansch mit markierter Bohrung') }}
+
+{% raw %}
+```markdown
+{{ image('images/bauteil.png', width='8cm', overlay='images/bauteil_pfeile.svg', overlay_width='11.00cm',
+         overlay_height='5.00cm', title='Flansch mit markierter Bohrung') }}
+```
+{% endraw %}
+
+Pfeile, Kreise, Rechtecke und Textfelder, die in Word über ein Bild gezeichnet sind, übernimmt der Word-Import so als Overlay, auch gruppiert.
+
 ## Markdown-Bild und Platzhalter {{ uuid('32bec117-2169-4eca-bfd4-f6bead1ca124') }}
 
 Auch die Markdown-Schreibweise für Bilder funktioniert; der Text in eckigen Klammern wird der Alternativtext, ein Titel in Anführungszeichen die Bildunterschrift: {{ uuid('425d01b6-662a-4a59-9380-4495b469b100') }}

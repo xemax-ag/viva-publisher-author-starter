@@ -76,13 +76,14 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
   reads back every command the conversion writes into the Word document, with the uuids of its content controls;
   where it reads each: `docx_to_md/convert/structure/commands.py` (`tests/docx_to_md/test_commands.py` converts each
   command and imports it again). Not read back, as the Word document holds nothing of it: the uuid of a manifest call
-  and of `ref()`, `anchor()`, `link_leo()` and the management summary's title (the import draws new ones); `alt_text`,
-  `border` and `crop` of `image()` (`height` and `scale` come back as its `width`; a turned picture comes back
-  turned, without `rotate`); `numbered=False` of `table()`; the
+  and of `ref()`, `anchor()`, `link_leo()` and the management summary's title (the import draws new ones); `alt_text`
+  and `border` of `image()` (`height` and `scale` come back as its `width`, `crop` as the crop Word shows — with a
+  thin edge line the conversion cut off too; a turned picture comes back turned, without `rotate`); `numbered=False`
+  of `table()`; the
   widths of `learning_objectives()`; `unnumbered` of `list_of_illustrations()` and `list_of_tables()`; another
   `title` of `bibliography()`; `size`, `color` and `alignment` of `qr_code()`. A row's `height` (HTML table) comes back
   from 1 cm; a lower row height of Word it leaves out (about one line of text, which the row has anyway).
-- **The InDesign import** (`viva_publisher_converter/docx_to_md_from_indesign`,
+- **The InDesign import** (`viva_publisher_converter/_migration/docx_to_md_from_indesign`,
   `validations/docx_to_md_from_indesign/docx_to_md_from_indesign_v.py`): a Word document of an InDesign book
   (InDesign → PDF → Word), e.g. Antriebstechnik. It writes what it recognises — the labels and notes of a Hinweis, a
   Selbstkontrolle, the learning objectives, tables and groups of pictures, as the commands below name it; what it
@@ -92,7 +93,7 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
 
 | Command | Where | Arguments (positional first) | What it writes |
 | --- | --- | --- | --- |
-| [`document`](#document) | manifest | `title`, `state='production'`, `type='theory'` | the document title, its state (`'development'`: a reference without target does not stop the build) and its type |
+| [`document`](#document) | manifest | `title`, `state='production'`, `type='subject_knowledge'` | the document title, its state (`'development'`: a reference without target does not stop the build) and its type |
 | [`logo`](#logo) | manifest | `name` | the logos of the colour bands and the page headers |
 | [`watermark`](#watermark) | manifest | `text`, `color='#C0C0C0'` | a text watermark on every page, e.g. «ENTWURF» |
 | [`cover`](#cover) | manifest | `src='cover.md'`, `image=None` | the title page |
@@ -106,7 +107,7 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
 | [`glossar`](#glossar) | manifest | `src='glossar.md'` | the Glossar |
 | [`bibliography`](#bibliography) | manifest | `src='quellen.md'`, `title='Quellenverzeichnis'` | the list of the sources cited with `cite()` |
 | [`keyword_index`](#keyword_index) | manifest | – | the Stichwortverzeichnis |
-| [`image`](#image) | manifest, chapter | `src`, `width`, `height`, `scale`, `align`, `border`, `crop`, `wrap`, `title`, `numbered`, `anchor`, `alt_text`, `rotate` | a picture |
+| [`image`](#image) | manifest, chapter | `src`, `width`, `height`, `scale`, `align`, `border`, `crop`, `wrap`, `title`, `numbered`, `anchor`, `alt_text`, `rotate`, `overlay`, `overlay_width`, `overlay_height`, `overlay_x`, `overlay_y` | a picture |
 | [`page_break`](#page_break) | manifest, chapter | – | a page break |
 | [`index`](#index) | chapter, inline | `entry`, `sub=None` | an entry of the Stichwortverzeichnis |
 | [`link`](#link) | chapter, inline | `url`, `text=None` | a hyperlink to a URL |
@@ -132,10 +133,13 @@ and list what they could not write as it is in `CONVERT.md` and `CONVERT.json`:
 
 ### document
 
-`{{ document('Antriebstechnik') }}`, `{{ document('Antriebstechnik', state='development', type='exercise') }}` — the
+`{{ document('Antriebstechnik') }}`, `{{ document('Antriebstechnik', state='development', type='exercises') }}` — the
 document title (header field TITLE), also the title of the cover if the cover does not set one, the document's state
-and its type. `title` must not be empty. `type`, what kind of document it is: `'theory'` (default, a textbook),
-`'exercise'`, `'exam_assignment'` or `'report'`; the converter does not use it yet. `state`:
+and its type. `title` must not be empty. `type`, what kind of content the document holds, a content type of the
+Literaturdatenbank: `'subject_knowledge'` (default, Fachwissen: a textbook), `'self_check'` (Selbstkontrolle),
+`'activation_tasks'` (Aktivierungsaufgaben), `'tasks'` (Aufgaben), `'exercises'` (Übungen), `'exams'` (Prüfungen),
+`'assignment_templates'` (Auftragsvorlagen) or `'author_assignments'` (Autorenaufträge); the converter does not use it
+yet. `state`:
 
 - `'production'` (default): the document is finished. A reference without its target (table below) is a problem: the
   build stops, no Word document is made.
@@ -323,11 +327,67 @@ the placeholder `((bild.png))`).
 | `anchor` | `'aufbau'` | its name, a target of [`ref()`](#ref): «Abbildung 1.2», its title, its page; only with `title` |
 | `rotate` | `-90` | the picture turned by 90, 180 or 270 degrees clockwise (negative: counter-clockwise; anything else is a problem) before the other options: `width`, `height`, `scale`, `crop` and `align` apply to the turned picture (`width='9.9cm', rotate=-90`: a landscape chart 9.9 cm wide and as tall as it is long); the converter turns the picture itself, not the Word shape, the file stays |
 | `alt_text` | `'Schaltplan des Motors'` | the picture's alternative text in Word (Alt Text: screen readers, the PDF); `None` (the default; both imports write it so, to be filled in): none; a Markdown picture `![…](…)` takes its `[…]` |
+| `overlay` | `'images/1_k/03.svg'` | a picture over the picture, e.g. a transparent SVG of arrows, circles or text (see below); relative to the chapter like the picture's file (a leading `/`: the manifest folder), it must exist; not with `wrap`; in a table cell only for a picture alone on its line of the cell |
+| `overlay_width`, `overlay_height` | `'14.10cm'` | the overlay's size, cm, mm or pt (default: the picture's drawn size); needs `overlay` |
+| `overlay_x`, `overlay_y` | `'-0.50cm'` | the overlay's top-left corner from the picture's, cm, mm or pt, negative: further left or higher (default 0); needs `overlay` |
+
+`overlay`: a picture over the picture, e.g. a transparent SVG of arrows pointing at a detail of a screenshot,
+circles, lines or text — for a picture what a table's overlay is for a table (see [`table`](#table)):
+
+```markdown
+{{ image('images/1_k/02.png', width='14.1cm', overlay='images/1_k/03.svg', overlay_width='14.10cm', overlay_height='6.20cm', overlay_y='-1.00cm') }}
+```
+
+- **Place and size.** «The picture» is the picture as drawn: after `rotate`, `crop` and `width`, `height` or `scale`.
+  The overlay's top-left corner is the picture's, moved by `overlay_x` and `overlay_y` (negative: left of it, above
+  it); it is stretched to `overlay_width` × `overlay_height` (default: the picture's size). An SVG of your own is
+  stretched without keeping its proportions — draw it that size; the template import's SVG is fitted instead: its
+  lines and boxes move with the size, its circles stay round, its arrowheads and text keep their size.
+- **Room.** Where the overlay sticks out above or below the picture, the picture gets that room, so it covers no text:
+  above an empty paragraph exactly that high before the picture, below space between the picture and its caption.
+  Left and right it may reach into the margin.
+- **Its sizes in the call.** After the export the build writes `overlay_width` and `overlay_height` into the call, each
+  it lacks (the picture's size; prints `overlay size written: …`): every call with an overlay shows both. Change them
+  by hand to stretch it; `overlay_x` and `overlay_y` are never written.
+- **In Word** the overlay is a normal picture in front of the text, anchored in the picture's paragraph; its name in
+  the Selection Pane holds the place of its call, e.g. `viva image overlay @ _1_k.md:24`.
+- **In a table cell** the picture must stand alone on its line of the cell (alone between the pipes, alone in its
+  `<td>`, or after a `<br>`; beside text it is a problem). The overlay is placed from the picture in the cell the same
+  way, without room: it may reach over the cell's edge, e.g. arrows from the text in the next cell (whose `indent`
+  keeps it clear of them):
+
+  ```markdown
+  {% call table('10cm', '6cm', type='layout') %}
+  <table>
+    <tr>
+      <td>{{ image('images/2_k/07.png', width='9.5cm', overlay='images/2_k/08.svg', overlay_width='10.70cm', overlay_height='7.55cm') }}</td>
+      <td indent="1.25cm">Wird die Funktion «Abstand» anstelle von «Zusammenfallend» verwendet, …</td>
+    </tr>
+  </table>
+  {% endcall %}
+  ```
+
+- **The template import** writes the overlay for the shapes Word draws over a picture: straight lines and connectors
+  with their arrowheads, circles and ellipses, rectangles, text boxes with their frame and text. It takes the shapes
+  placed from the column and the paragraph in the picture's paragraph, in an empty paragraph right before or after it,
+  and (only those over the picture) in a text paragraph next to it: one transparent SVG in the chapter's picture
+  folder, as large as the picture and its shapes together, scaled to the width the call gives the picture; the call
+  gets both sizes and, where the overlay sticks out, `overlay_x`/`overlay_y`. So also for a picture alone in its
+  paragraph of a table cell and the shapes of that paragraph over it — a picture Word places by offsets in the cell is
+  written inline, its overlay keeps the shapes on it —; the cells' other shapes are the table's overlay. Grouped
+  shapes count like single ones: markings grouped on their own, and a picture grouped with its markings (the group
+  placed by offsets or in the line: the picture is written inline, the markings are its overlay). A text box joins
+  the overlay if it lies over the picture or within 0.5 cm of one of its other markings — a label at the end of an
+  arrow beside the picture —; a text box beside the picture touching nothing (a side note) stays text after its
+  paragraph. A shape it cannot draw (placed from the page, another kind such as a block arrow or a freeform, a text
+  box with a picture) is reported, not drawn. Arrows and text that are part of the picture's file stay as they are.
+  The converter's own overlay comes back with its sizes and offsets.
 
 The picture is never wider than the text column. In a cell of a pipe table or an HTML table the call puts the picture
-into its cell
-(with text around it if wanted): `width`, `height`, `scale`, `crop`, `border` and `align` work there, `wrap` and
-`title` are problems (so `numbered=False` too) — but in a `table(type='layout')`, where `title` and `numbered` give the caption below the picture, and the picture is at most as wide as its column.
+into its cell (with text around it if wanted): `width`, `height`, `scale`, `crop`, `border` and `align` work there,
+`wrap` and `title` are problems (so `numbered=False` too) — but in a `table(type='layout')`, where `title` and
+`numbered` give the caption below the picture —, and `overlay` only for a picture alone on its line of the cell; the
+picture is at most as wide as its column.
 
 ### page_break
 
@@ -612,12 +672,27 @@ empty cell:
 </table>
 ```
 
+`indent` on a `<td>` or `<th>`: its text indented that far on the left, a length in cm, mm or pt (`indent="1.25cm"`;
+decimal comma allowed) — in Word the left indent of the cell's paragraphs (its list items keep their list's indent),
+e.g. a text column kept clear of arrows from the picture beside it (see [`image`](#image): `overlay` in a table cell).
+It goes with the other attributes of a cell. The template import writes it for a cell whose paragraphs with text share
+an indent of their own (Word's Paragraph › Indentation › Left):
+
+```markdown
+<table>
+  <tr>
+    <td>Schritt 1</td>
+    <td indent="1cm">Die Skizze definieren und anschliessend extrudieren.</td>
+  </tr>
+</table>
+```
+
 Other tags, a `rowspan` or `colspan` that is no whole number from 1, a `rowspan` that goes beyond the header rows or
 the last row, a `colspan` that runs into a column of a `rowspan` cell above (the converter shortens them), a
 `vertical` other than `up` or `down`, an `align` other than `left`, `center` or `right`, a `valign` other than `top`,
 `middle` (`center`) or `bottom`, a `solution` with a value, a `bgcolor` that is no `#RRGGBB` (no colour name, not
-without `#`), a `height` that is no length in cm, mm or pt, a table inside a cell, text outside of a cell and a missing
-`</table>` are problems.
+without `#`), a `height` or an `indent` that is no length in cm, mm or pt, a table inside a cell, text outside of a
+cell and a missing `</table>` are problems.
 
 `type`: the kind of table, `'default'` (the default: a table as above) or `'pictures'`: the table as pictures side by
 side, e.g. `{% call table('8.2cm', '7.8cm', type='pictures') %}` (the
@@ -676,11 +751,13 @@ the call stays as it is. In Word the overlay is a normal picture, anchored in th
 front of the text; its name in the Selection Pane holds the place of its call, e.g. `viva overlay @ _1_k.md:24`);
 resized there by hand, it keeps its size when the document is exported again. The table stays on one page. The
 template import writes it for the shapes Word draws over a table's cells, placed from their cell — straight lines
-(Line, Straight Connector), circles and ellipses, rectangles, with their outline and fill (also those of Word's default
-shape style, in the theme's colours) —: one SVG of the table's size in the chapter's picture folder, the shapes where
-and in the order Word draws them (Word keeps no row heights in the file: the import estimates them from the
-paragraphs' spacing and font size), without sizes in the call (the first build writes them); other shapes (a triangle,
-an arrow, a freeform) are reported, not drawn. It writes the converter's own overlay again, too, with both sizes if
+(Line, Straight Connector) with their arrowheads, circles and ellipses, rectangles, text boxes with their text, with
+their outline and fill (also those of Word's default shape style, in the theme's colours) —: one SVG of the table's
+size in the chapter's picture folder, the shapes where and in the order Word draws them (Word keeps no row heights in
+the file: the import estimates them from the paragraphs' spacing and font size and the cells' pictures), without sizes
+in the call (the first build writes them); grouped shapes count like single ones; other shapes (a triangle, a block
+arrow, a freeform) are reported, not drawn. The shapes over a picture alone in its cell paragraph are that picture's own overlay instead (see
+[`image`](#image): `overlay` in a table cell). It writes the converter's own overlay again, too, with both sizes if
 they were measured or given:
 
 ```markdown
@@ -697,8 +774,8 @@ they were measured or given:
 Each kind of table can also be written without HTML, as a pipe table: one line per row, the cells between `|`; in a
 cell `<br>` is a line break (and an empty line, `<br><br>`, a new paragraph in a layout table), a line starting with
 `- ` or `1. ` a list item, and `image()`, `formula()`, `content()` and Markdown work as in an HTML cell. Not possible in
-a pipe table: cells over several rows or columns (`rowspan`, `colspan`), turned, aligned or coloured cells
-(`vertical`, `align`, `valign`, `bgcolor`), a cell over several lines and a `|` in a cell's text — these need an HTML table.
+a pipe table: cells over several rows or columns (`rowspan`, `colspan`), turned, aligned, coloured or indented cells
+(`vertical`, `align`, `valign`, `bgcolor`, `indent`), a cell over several lines and a `|` in a cell's text — these need an HTML table.
 
 A normal table with a header row (the separator row `| --- |`), its caption and a name for `ref()`; the header row is
 repeated on every page, a list in a cell:

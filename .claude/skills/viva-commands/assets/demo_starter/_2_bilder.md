@@ -81,6 +81,19 @@ Mit `numbered=False` steht nur der Titel unter dem Bild, ohne «Abbildung n:». 
 ```
 {% endraw %}
 
+## Pfeile und Text über dem Bild
+
+Mit `overlay` liegt ein zweites Bild über dem Bild, meist ein durchsichtiges SVG mit Pfeilen, Kreisen und Text. Seine linke obere Ecke ist die des Bildes, `overlay_x` und `overlay_y` verschieben sie; ragt es oben oder unten über das Bild hinaus, erhält das Bild dort Platz. Ohne `overlay_width` und `overlay_height` ist es so gross wie das Bild; der Build schreibt beide in den Aufruf. Hier ragt es rechts 3 cm über das Bild hinaus:
+
+{{ image('images/bauteil.png', width='8cm', overlay='images/bauteil_pfeile.svg', overlay_width='11.00cm', overlay_height='5.00cm', title='Flansch mit markierter Bohrung') }}
+
+{% raw %}
+```markdown
+{{ image('images/bauteil.png', width='8cm', overlay='images/bauteil_pfeile.svg', overlay_width='11.00cm',
+         overlay_height='5.00cm', title='Flansch mit markierter Bohrung') }}
+```
+{% endraw %}
+
 ## Markdown-Bild und Platzhalter
 
 Auch die Markdown-Schreibweise für Bilder funktioniert; der Text in eckigen Klammern wird der Alternativtext, ein Titel in Anführungszeichen die Bildunterschrift:

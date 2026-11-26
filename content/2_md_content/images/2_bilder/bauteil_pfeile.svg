@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="11cm" height="5cm" viewBox="0 0 11 5">
+  <circle cx="5.06" cy="3.56" r="0.45" fill="none" stroke="#C00000" stroke-width="0.06"/>
+  <line x1="8.2" y1="3.56" x2="5.85" y2="3.56" stroke="#C00000" stroke-width="0.06"/>
+  <polygon points="5.55,3.56 5.9,3.42 5.9,3.70" fill="#C00000"/>
+  <text x="8.3" y="3.68" font-family="Roboto, Arial, sans-serif" font-size="0.35" fill="#C00000">Bohrung M8</text>
+</svg>
